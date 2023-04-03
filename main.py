@@ -1,4 +1,5 @@
 from pdt.jugador import Jugador
+from pdt.carta import Carta, Palo
 # import equipo from pdt
 from pdt import equipo
 
@@ -11,3 +12,8 @@ js = [j1,j2]
 import jsonpickle
 d = jsonpickle.encode(js, unpicklable=False, make_refs=False)
 print(d)
+
+c1 = Carta(12, Palo.BASTO)
+c2 = Carta(7, Palo.ORO)
+c3 = Carta(7, "oro")
+
