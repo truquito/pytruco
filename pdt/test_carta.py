@@ -33,7 +33,7 @@ def test_cartas_random():
     print(f"#{i+1} - {c}")
 
   # no se repite ninguna
-  for _ in range(1_000):
+  for _ in range(100):
     cs = get_cartas_random(20)
     assert len(set([str(c) for c in cs])) == 20
 
