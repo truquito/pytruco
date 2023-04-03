@@ -1,5 +1,5 @@
 import pytest
-from .carta import Carta, Palo
+from .carta import Carta, Palo, get_cartas_random, CartaID
 
 def test_carta_str_rep():
   c1 = Carta(12, Palo.BASTO)
@@ -22,3 +22,24 @@ def test_carta_eq():
   c2 = Carta(7, Palo.ORO)
   c3 = Carta(7, "oro")
   assert c2 == c3, "cartas c2 y c3 deberian ser iguales"
+
+# pytest -s -k "test_cartas_random"
+def test_cartas_random():
+  cs = get_cartas_random(10)
+  are_valids = [isinstance(c, Carta) for c in cs]
+  assert all(are_valids), "todas deberian ser cartas validas"
+  # for i,c in enumerate(cs):
+  #   print(f"#{i}", c)
+
+
+def test_id_to_carta():
+  assert CartaID(0).to_carta() == Carta(1,"basto"), "deberia coincidir"
+  assert CartaID(4).to_carta() == Carta(5,"basto"), "deberia coincidir"
+  assert CartaID(11).to_carta() == Carta(2,"Copa"), "deberia coincidir"
+  assert CartaID(15).to_carta() == Carta(6,"Copa"), "deberia coincidir"
+  assert CartaID(18).to_carta() == Carta(11,"Copa"), "deberia coincidir"
+  assert CartaID(20).to_carta() == Carta(1,"espada"), "deberia coincidir"
+  assert CartaID(27).to_carta() == Carta(10,"espada"), "deberia coincidir"
+  assert CartaID(31).to_carta() == Carta(2,"oro"), "deberia coincidir"
+  assert CartaID(35).to_carta() == Carta(6,"oro"), "deberia coincidir"
+  assert CartaID(39).to_carta() == Carta(12,"oro"), "deberia coincidir"
