@@ -216,4 +216,4 @@ def get_cartas_random(n:int) -> list[Carta]:
   max_carta_id = 40
   ids = list(range(max_carta_id))
   random.shuffle(ids)
-  return [CartaID(id).to_carta() for id in ids[:n+1]]
+  return [CartaID(id).to_carta() for id in ids[:n]]

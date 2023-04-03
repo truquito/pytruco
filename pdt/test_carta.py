@@ -27,9 +27,15 @@ def test_carta_eq():
 def test_cartas_random():
   cs = get_cartas_random(10)
   are_valids = [isinstance(c, Carta) for c in cs]
+  assert len(cs) == 10
   assert all(are_valids), "todas deberian ser cartas validas"
-  # for i,c in enumerate(cs):
-  #   print(f"#{i}", c)
+  for i,c in enumerate(cs):
+    print(f"#{i+1} - {c}")
+
+  # no se repite ninguna
+  for _ in range(1_000):
+    cs = get_cartas_random(20)
+    assert len(set([str(c) for c in cs])) == 20
 
 
 def test_id_to_carta():
