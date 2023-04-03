@@ -1,0 +1,2 @@
+AZUL = "azul"
+ROJO = "rojo"
