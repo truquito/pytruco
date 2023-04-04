@@ -91,3 +91,84 @@ def test_tiene_flor():
   assert m_anna.tiene_flor(muestra) == (True, 2), "deberia tener flor"
 
 
+def test_calc_flor():
+  # muestra
+  muestra = Carta(11, "oro")
+  
+  # jugadores
+  j_anna = Jugador("Anna", Equipo.AZUL)
+
+  # manojos
+  m_anna = Manojo(j_anna)
+
+  m_anna.cartas = [
+    Carta(2, "oro"),
+    Carta(4, "oro"),
+    Carta(5, "oro"),
+  ]
+  
+  assert m_anna.tiene_flor(muestra)[0] == True, "deberia tener flor"
+
+  assert m_anna.calc_flor(muestra) == 47, "deberia tener 47 de flor"
+
+
+def test_calc_envido():
+  # muestra
+  muestra = Carta(1, "espada")
+  
+  # jugadores
+  j_anna = Jugador("Anna", Equipo.AZUL)
+
+  # manojos
+  m_anna = Manojo(j_anna)
+
+  m_anna.cartas = [
+    Carta(6, "oro"),
+    Carta(12, "oro"),
+    Carta(5, "copa"),
+  ]
+
+  assert m_anna.calcular_envido(muestra) == 26, "deberia tener 26 de envido"
+
+  m_anna.cartas = [
+    Carta(12, "copa"),
+    Carta(11, "copa"),
+    Carta(3, "basto"),
+  ]
+
+  assert m_anna.calcular_envido(muestra) == 20, "deberia tener 20 de envido"
+
+  m_anna.cartas = [
+    Carta(2, "copa"),
+    Carta(6, "copa"),
+    Carta(1, "basto"),
+  ]
+
+  assert m_anna.calcular_envido(muestra) == 28, "deberia tener 28 de envido"
+
+  m_anna.cartas = [
+    Carta(2, "oro"),
+    Carta(3, "oro"),
+    Carta(2, "basto"),
+  ]
+
+  assert m_anna.calcular_envido(muestra) == 25, "deberia tener 25 de envido"
+
+  m_anna.cartas = [
+    Carta(6, "basto"),
+    Carta(7, "basto"),
+    Carta(5, "oro"),
+  ]
+
+  assert m_anna.calcular_envido(muestra) == 33, "deberia tener 33 de envido"
+
+  m_anna.cartas = [
+    Carta(3, "copa"),
+    Carta(4, "copa"),
+    Carta(4, "oro"),
+  ]
+
+  assert m_anna.calcular_envido(muestra) == 27, "deberia tener 27 de envido"
+
+  
+

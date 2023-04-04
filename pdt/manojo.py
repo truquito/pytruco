@@ -57,5 +57,59 @@ class Manojo():
         return (True, 3)
 
     return (False, -1)
+  
+  """retorna el valor de la flor de un manojo
+  si no tiene flor retorna -1"""
+  def calc_flor(self, muestra:Carta) -> int:
+    puntaje_flor = 0
+    tiene_flor, tipo_flor = self.tiene_flor(muestra)
+
+    if not tiene_flor: return -1
+
+    ptjs = [c.calc_puntaje(muestra) for c in self.cartas]
+
+    if tipo_flor == 1:
+      _max = max(ptjs)
+      mix = ptjs.index(_max)
+      del ptjs[mix]
+      puntaje_flor = _max + sum([p % 10 for p in ptjs])
+    else: # casos 2 y 3 ~ elif tipo_flor in [2,3]:
+      puntaje_flor = sum(ptjs)
+
+    return puntaje_flor
+  
+  """tiene2DelMismoPalo devuelve `true` si tiene dos cartas
+  del mismo palo, y ademas los indices de estas en el array manojo.Cartas"""
+  def tiene_2_del_mismo_palo(self) -> tuple[bool, tuple[int, int]]:
+    # hay cuatro casos
+    # la primera es igual a la seguna
+    # la primera es igual a la tercera
+    # la seguna es igual a la tercera
+    # ninguna de las anteriores
+    for i in range(0,2):
+      for j in range(i+1,3):
+        mismo_palo = self.cartas[i].palo == self.cartas[j].palo
+        if mismo_palo:
+          return True, (i,j)
+
+    return False, [None,None]
+  
+  """CalcularEnvido devuelve el puntaje correspondiente al envido del manojo
+  PRE: no tiene flor"""
+  def calcular_envido(self, muestra:Carta) -> int:
+    tiene_2_del_mismo_palo, ixs = self.tiene_2_del_mismo_palo()
+    if tiene_2_del_mismo_palo:
+      x,y = [self.cartas[ix].calc_puntaje(muestra) for ix in ixs]
+      no_tiene_niguna_pieza = max(x,y) < 27
+      if no_tiene_niguna_pieza:
+        return x + y + 20
+      else:
+        return x + y
+    else:
+      # si no, entonces implemente suma las 2 de mayor valor
+      pts = [c.calc_puntaje(muestra) for c in self.cartas]
+      pts = sorted(pts, reverse=True) # de mayor a menor
+      return sum(pts[:2])
+
 
     
