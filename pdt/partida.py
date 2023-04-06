@@ -347,7 +347,7 @@ class Partida():
       # `La ronda ha sido ganada por el equipo %s. +%v puntos para el equipo %s 
       # por el %s ganado`
       pkts += [Packet(
-        "ALL",
+        ["ALL"],
         Message(
           CodMsg.RONDA_GANADA,
           data={
@@ -370,7 +370,7 @@ class Partida():
       # `La ronda ha sido ganada por el equipo %s. +%v puntos para el equipo %s 
       # por el %s no querido`
       pkts += [Packet(
-        "ALL",
+        ["ALL"],
         Message(
           CodMsg.RONDA_GANADA,
           data={
@@ -392,7 +392,7 @@ class Partida():
       # `La ronda ha sido ganada por el equipo %s. +%v puntos para el equipo %s 
       # por el %s ganado`
       pkts += [Packet(
-        "ALL",
+        ["ALL"],
         Message(
           CodMsg.RONDA_GANADA,
           data={
@@ -404,7 +404,7 @@ class Partida():
     self.suma_puntos(self.ronda.manojo(ganador).jugador.equipo, totalPts)
 
     pkts += [Packet(
-      "ALL",
+      ["ALL"],
       Message(
         CodMsg.SUMA_PTS,
         data={
@@ -480,7 +480,7 @@ class Partida():
       mano.ganador = ""
       
       pkts += [Packet(
-        "ALL",
+        ["ALL"],
         Message(
           CodMsg.LA_MANO_RESULTA_PARDA,
           data=None)
@@ -521,7 +521,7 @@ class Partida():
       mano.ganador = self.ronda.manojo(tiradaGanadora.jugador).jugador.id
 
       pkts += [Packet(
-        "ALL",
+        ["ALL"],
         Message(
           CodMsg.MANO_GANADA,
           data={
