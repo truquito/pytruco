@@ -69,6 +69,10 @@ class Ronda():
   def get_el_mano(self) -> Manojo:
     return self.manojos[self.el_mano]
   
+  """retorna el id del que deberia ser el siguiente mano"""
+  def get_sig_el_mano(self) -> int:
+    return self.JIX(self.get_siguiente(self.get_el_mano()).jugador.id)
+  
   def get_el_turno(self) -> Manojo:
     return self.manojos[self.turno]
   
@@ -298,7 +302,7 @@ class Ronda():
     ya_dijeron[jIdx] = True
 
     pkts += [Packet(
-      "ALL",
+      ["ALL"],
       Message(
         CodMsg.DICE_TENGO,
         data={
@@ -336,7 +340,7 @@ class Ronda():
         if sonMejores:
           if esDeEquipoContrario:
             pkts += [Packet(
-              "ALL",
+              ["ALL"],
               Message(
                 CodMsg.DICE_SON_MEJORES,
                 data={
@@ -362,7 +366,7 @@ class Ronda():
             if todaviaNoDijeronSonMejores:
 
               pkts += [Packet(
-                "ALL",
+                ["ALL"],
                 Message(
                   CodMsg.DICE_SON_BUENAS,
                   data={
@@ -443,7 +447,7 @@ class Ronda():
     if flores[aPartirDe] > 0:
       yaDijeron[aPartirDe] = True
       pkts += [Packet(
-        "ALL",
+        ["ALL"],
         Message(
           CodMsg.DICE_TENGO,
           data={
@@ -479,7 +483,7 @@ class Ronda():
         if sonMejores:
           if esDeEquipoContrario:
             pkts += [Packet(
-              "ALL",
+              ["ALL"],
               Message(
                 CodMsg.DICE_SON_MEJORES,
                 data={
@@ -504,7 +508,7 @@ class Ronda():
           if esDeEquipoContrario:
             if todaviaNoDijeronSonMejores:
               pkts += [Packet(
-                "ALL",
+                ["ALL"],
                 Message(
                   CodMsg.DICE_SON_BUENAS,
                   data={

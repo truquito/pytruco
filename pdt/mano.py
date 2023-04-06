@@ -28,6 +28,9 @@ class NumMano(str, Enum):
     return 1 if nm == NumMano.PRIMERA \
       else 2 if nm == NumMano.SEGUNDA \
       else 3
+  
+  def inc(nm:NumMano) -> NumMano:
+    return NumMano.SEGUNDA if nm == NumMano.PRIMERA else NumMano.TERCERA
 
 class CartaTirada():
   def __init__(self, jugador:str, carta:Carta):
