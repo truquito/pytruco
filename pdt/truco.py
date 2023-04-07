@@ -18,6 +18,21 @@ class EstadoTruco(str, Enum):
   def __repr__(self) -> str:
     return str(self)
   
+  def __lt__(self, other: 'EstadoTruco'):
+    if self == other:
+      return False
+    # the following works because the order of elements in the definition is 
+    # preserved
+    for elem in EstadoTruco:
+      if self == elem:
+        return True
+      elif other == elem:
+        return False
+    raise RuntimeError('Bug: we should never arrive here')
+  
+  def __le__(self, other: 'EstadoTruco'):
+    return self < other or self == other
+  
   def es_truco_respondible(e:EstadoTruco) -> bool:
     return e in [EstadoTruco.TRUCO, EstadoTruco.RETRUCO, EstadoTruco.VALE4]
 

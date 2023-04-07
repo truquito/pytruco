@@ -24,6 +24,21 @@ class NumMano(str, Enum):
   def __repr__(self) -> str:
     return str(self)
   
+  def __lt__(self, other: 'NumMano'):
+    if self == other:
+      return False
+    # the following works because the order of elements in the definition is 
+    # preserved
+    for elem in NumMano:
+      if self == elem:
+        return True
+      elif other == elem:
+        return False
+    raise RuntimeError('Bug: we should never arrive here')
+  
+  def __le__(self, other: 'NumMano'):
+    return self < other or self == other
+  
   def to_int(nm:NumMano) -> int:
     return 1 if nm == NumMano.PRIMERA \
       else 2 if nm == NumMano.SEGUNDA \

@@ -20,6 +20,26 @@ class EstadoEnvite(str, Enum):
   def __repr__(self) -> str:
     return str(self)
   
+  def __lt__(self, other: 'EstadoEnvite'):
+    if self == other:
+      return False
+    # the following works because the order of elements in the definition is 
+    # preserved
+    for elem in EstadoEnvite:
+      if self == elem:
+        return True
+      elif other == elem:
+        return False
+    raise RuntimeError('Bug: we should never arrive here')
+  
+  def __le__(self, other: 'EstadoEnvite'):
+    return self < other or self == other
+  
+  # def to_ptr(self) -> int:
+  #   return 33 if self == MyEnum.first_item \
+  #     else 44 if self == MyEnum.whatever \
+  #     else 55
+  
 class Envite():
   def __init__(self):
     self.estado              :EstadoEnvite = EstadoEnvite.NOCANTADOAUN

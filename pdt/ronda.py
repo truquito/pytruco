@@ -122,7 +122,7 @@ class Ronda():
   
   """retorna todos los manojos que tienen flor"""
   def get_flores(self) -> tuple[bool, list[Manojo]]:
-    flores = [m for m in self.manojos if m.tiene_flor(self.muestra)]
+    flores = [m for m in self.manojos if m.tiene_flor(self.muestra)[0]]
     hay_flores = len(flores) > 0
     return (hay_flores, flores)
 
