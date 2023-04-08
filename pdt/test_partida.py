@@ -680,5 +680,37 @@ def test_parse_jugada():
     with pytest.raises(Exception, match='invalido'):
       _ = p.parse_jugada(c)
 
+def test_partida1():
+  p = Partida(20, ["Alvaro", "Adolfo", "Andres"], ["Roro", "Renzo", "Richard"])  
+  mu = Carta(3, "oro")
+  p.ronda.muestra = mu
+  p.ronda.set_cartas([
+    [ Carta(2, "Oro"), Carta(6, "Basto"), Carta(7, "Basto") ], # Alvaro tiene flor
+    [ Carta(5, "Oro"), Carta(5, "Espada"), Carta(5, "Basto") ], # Roro no tiene flor
+    [ Carta(1, "Copa"), Carta(2, "Copa"), Carta(3, "Copa") ], # Adolfo tiene flor
+    [ Carta(4, "Oro"), Carta(4, "Espada"), Carta(1, "Espada") ], # Renzo tiene flor
+    [ Carta(10, "Copa"), Carta(7, "Oro"), Carta(11, "Basto") ], # Andres no tiene  flor
+    [ Carta(10, "Oro"), Carta(2, "Oro"), Carta(1, "Basto") ], # Richard tiene flor
+  ])
 
+  # print(p)
+
+  # no deberia dejarlo cantar envido xq tiene flor
+  p.cmd("Alvaro Envido")
+  assert p.ronda.envite.estado != EstadoEnvite.ENVIDO
+
+  # deberia retornar un error debido a que ya canto flor
+  pkts = p.cmd("Alvaro Flor")
+  for pkt in pkts:
+    print(pkt)
+
+  # deberia dejarlo irse al mazo
+  p.cmd("Roro Mazo")
+  assert p.ronda.manojos[1].se_fue_al_mazo == True
+
+  p.cmd("Adolfo Flor")
+  p.cmd("Renzo Contra-flor")
+  assert p.ronda.envite.estado == EstadoEnvite.CONTRAFLOR
+
+  p.cmd("Alvaro Quiero")
 

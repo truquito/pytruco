@@ -1609,31 +1609,6 @@ class IrseAlMazo(IJugada):
     if not ok:
       return pkts
     
-    return pkts   
-
-class Foo(IJugada):
-  def __init__(self, jid:str):
-    self.jid   :str   = jid
-  
-  def id() -> IJUGADA_ID:
-    return IJUGADA_ID.FOO
-  
-  def __str__(self) -> str:
-    return f"{self.jid} foo"
-
-  # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
-    return pkts, True
-
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
-    pre, ok = self.ok(p)
-    pkts += pre
-
-    if not ok:
-      return pkts
-    
     pkts += [Packet(
         dest=["ALL"],
         m=Message(
@@ -1813,3 +1788,28 @@ class Foo(IJugada):
         )]    
      
     return pkts   
+
+# class TemplateJugadaGenerica(IJugada):
+#   def __init__(self, jid:str):
+#     self.jid   :str   = jid
+  
+#   def id() -> IJUGADA_ID:
+#     return IJUGADA_ID.JUGADA_GENERICA
+  
+#   def __str__(self) -> str:
+#     return f"{self.jid} foo"
+
+#   # Retorna true si la jugada es valida
+#   def ok(self,p:Partida) -> tuple[list[Packet], bool]:
+#     pkts :list[Packet] = []
+#     return pkts, True
+
+#   def hacer(self, p:Partida) -> list[Packet]:
+#     pkts :list[Packet] = []
+#     pre, ok = self.ok(p)
+#     pkts += pre
+
+#     if not ok:
+#       return pkts
+    
+#     return pkts   
