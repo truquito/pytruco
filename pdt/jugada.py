@@ -1,4 +1,4 @@
-from .partida import Partida
+from .partida import Partida, IJugada
 from .jugadas import IJUGADA_ID
 from .carta import Carta
 from .envite import EstadoEnvite
@@ -10,20 +10,6 @@ from enco.packet import Packet
 from enco.message import Message
 from enco.codmsg import CodMsg
 from enco.razon import Razon
-
-# IJugada Interface para las jugadas
-class IJugada():
-  def id() -> IJUGADA_ID:
-    pass
-  """retorna `True` si la jugada es valida"""
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pass
-  def hacer(self, p:Partida) -> list[Packet]:
-    pass
-  def __str__(self) -> str:
-    pass
-  def __repr__(self) -> str:
-    return str(self)
   
 class TirarCarta(IJugada):
   def __init__(self, jid:str, carta:Carta):

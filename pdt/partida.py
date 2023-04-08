@@ -1,5 +1,7 @@
 from __future__ import annotations
 from typing import Dict
+import re
+
 from .equipo import Equipo
 from .ronda import Ronda
 from .manojo import Manojo
@@ -7,14 +9,27 @@ from .envite import EstadoEnvite
 from .truco import EstadoTruco
 from .mano import NumMano, Resultado, CartaTirada
 from .carta import Carta
-# from .jugada import *
-
+from .jugadas import IJUGADA_ID
 
 from enco.packet import Packet
 from enco.message import Message
 from enco.codmsg import CodMsg
 from enco.razon import Razon
 
+# IJugada Interface para las jugadas
+class IJugada():
+  def id() -> IJUGADA_ID:
+    pass
+  """retorna `True` si la jugada es valida"""
+  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
+    pass
+  def hacer(self, p:Partida) -> list[Packet]:
+    pass
+  def __str__(self) -> str:
+    pass
+  def __repr__(self) -> str:
+    return str(self)
+  
 class Partida():
   def __init__(self, puntuacion:int, azules:list[str], rojos:list[str]):
     if puntuacion not in [20,30,40]:
@@ -535,7 +550,6 @@ class Partida():
           })
       )]
 
-    pass
     # se termino la ronda?
     empiezaNuevaRonda, pkt2 = self.evaluar_ronda()
 
@@ -610,61 +624,57 @@ class Partida():
 
     return pkts
   
-  """nexo capa presentacion con capa logica"""
-  def cmd(self, cmd:str) -> list[Packet]:
-    pkts:list[Packet] = []
-
-    from .jugada import IJugada
+  def parse_jugada(self, cmd:str) -> IJugada:
     from .jugada import TocarEnvido, TocarRealEnvido, TocarFaltaEnvido, \
       CantarFlor, CantarContraFlor, CantarContraFlorAlResto, GritarTruco, \
       GritarReTruco, GritarVale4, ResponderQuiero, ResponderNoQuiero, \
       IrseAlMazo, TirarCarta
-
-    def parse(cmd:str) -> IJugada:
-      nonlocal self
-      import re
-      # jugada simple?
-      m = re.search("(?i)^([a-zA-Z0-9_-]+) ([a-zA-Z0-9_-]+)$", cmd)
-      if m is not None:
-        jugadorStr, j = m[1], m[2].lower()
-        # jugador
-        manojo = self.manojo(jugadorStr)
-        if manojo is None: raise Exception("comando invalido")
-        # jugada
-        x :IJugada = TocarEnvido(manojo.jugador.id) if j == "envido" \
-                else TocarRealEnvido(manojo.jugador.id) if j == "real-envido" \
-                else TocarFaltaEnvido(manojo.jugador.id) if j == "falta-envido" \
-                else CantarFlor(manojo.jugador.id) if j == "flor" \
-                else CantarContraFlor(manojo.jugador.id) if j == "contra-flor" \
-                else CantarContraFlorAlResto(manojo.jugador.id) if j == "contra-flor-al-resto" \
-                else GritarTruco(manojo.jugador.id) if j == "truco" \
-                else GritarReTruco(manojo.jugador.id) if j == "re-truco" \
-                else GritarVale4(manojo.jugador.id) if j == "vale-4" \
-                else ResponderQuiero(manojo.jugador.id) if j == "quiero" \
-                else ResponderNoQuiero(manojo.jugador.id) if j == "no-quiero" \
-                else IrseAlMazo(manojo.jugador.id) if j == "mazo" \
-                else None
-        
-        if x is None: raise Exception("comando invalido")
-        return x
+    
+    # jugada simple?
+    m = re.search("(?i)^([a-zA-Z0-9_-]+) ([a-zA-Z0-9_-]+)$", cmd)
+    if m is not None:
+      jugadorStr, j = m[1], m[2].lower()
+      # jugador
+      manojo = self.manojo(jugadorStr)
+      if manojo is None: raise Exception("comando invalido")
+      # jugada
+      x :IJugada = TocarEnvido(manojo.jugador.id) if j == "envido" \
+              else TocarRealEnvido(manojo.jugador.id) if j == "real-envido" \
+              else TocarFaltaEnvido(manojo.jugador.id) if j == "falta-envido" \
+              else CantarFlor(manojo.jugador.id) if j == "flor" \
+              else CantarContraFlor(manojo.jugador.id) if j == "contra-flor" \
+              else CantarContraFlorAlResto(manojo.jugador.id) if j == "contra-flor-al-resto" \
+              else GritarTruco(manojo.jugador.id) if j == "truco" \
+              else GritarReTruco(manojo.jugador.id) if j == "re-truco" \
+              else GritarVale4(manojo.jugador.id) if j == "vale-4" \
+              else ResponderQuiero(manojo.jugador.id) if j == "quiero" \
+              else ResponderNoQuiero(manojo.jugador.id) if j == "no-quiero" \
+              else IrseAlMazo(manojo.jugador.id) if j == "mazo" \
+              else None
       
-      # jugada de tipo tirar-carta ?
-      m = re.search("(?i)^([a-zA-Z0-9_-]+) (1|2|3|4|5|6|7|10|11|12) (oro|copa|basto|espada)$", cmd)
-      if m is not None:
-        jugadorStr, valorStr, paloStr = m[1], m[2].lower(), m[3].lower()
-        # jugador
-        manojo = self.manojo(jugadorStr)
-        if manojo is None: raise Exception("comando invalido")
-        # jugada
-        carta = Carta(int(valorStr), paloStr)
-        return TirarCarta(jugadorStr, carta)
+      if x is None: raise Exception("comando invalido")
+      return x
+    
+    # jugada de tipo tirar-carta ?
+    m = re.search("(?i)^([a-zA-Z0-9_-]+) (1|2|3|4|5|6|7|10|11|12) (oro|copa|basto|espada)$", cmd)
+    if m is not None:
+      jugadorStr, valorStr, paloStr = m[1], m[2].lower(), m[3].lower()
+      # jugador
+      manojo = self.manojo(jugadorStr)
+      if manojo is None: raise Exception("comando invalido")
+      # jugada
+      carta = Carta(int(valorStr), paloStr)
+      return TirarCarta(jugadorStr, carta)
 
-      # sino
-      raise Exception("comando invalido")
+    # sino
+    raise Exception("comando invalido")
 
+  """nexo capa presentacion con capa logica"""
+  def cmd(self, cmd:str) -> list[Packet]:
+    pkts:list[Packet] = []
 
     # checkeo semantico
-    jugada = parse(cmd)
+    jugada = self.parse_jugada(cmd)
     jugada.hacer(self)
 
     if self.terminada():
