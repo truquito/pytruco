@@ -1,4 +1,3 @@
-from __future__ import annotations
 from .partida import Partida
 from .jugadas import IJUGADA_ID
 from .carta import Carta
@@ -254,7 +253,7 @@ class TocarEnvido(IJugada):
       return pkts, False
     
     seFueAlMazo = p.manojo(self.jid).se_fue_al_mazo
-    esPrimeraMano = p.ronda.mano_en_juego == NumMano.P
+    esPrimeraMano = p.ronda.mano_en_juego == NumMano.PRIMERA
     esSuTurno = p.ronda.get_el_turno().jugador.id == p.manojo(self.jid).jugador.id
     tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
     envidoHabilitado = (p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN or p.ronda.envite.estado == EstadoEnvite.ENVIDO)

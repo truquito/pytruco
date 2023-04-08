@@ -25,7 +25,7 @@ primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61,
  ----------------------------------------------------------
 """
 
-class Palo(str, Enum):
+class Palo(Enum):
   BASTO = "basto"
   COPA = "copa"
   ESPADA = "espada"
@@ -48,6 +48,9 @@ class Palo(str, Enum):
   
   def __repr__(self) -> str:
     return str(self)
+  
+  def __eq__(self, other) -> bool:
+    return str(self) == str(other)
 
   def es_valido(e):
     return e in [Palo.ESPADA, Palo.COPA, Palo.ORO, Palo.BASTO]

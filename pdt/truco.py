@@ -2,7 +2,7 @@ from __future__ import annotations
 from enum import Enum
 from .jugador import Jugador
 
-class EstadoTruco(str, Enum):
+class EstadoTruco(Enum):
 
   NOCANTADO      = "noCantado"
   TRUCO          = "truco"

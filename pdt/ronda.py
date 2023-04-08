@@ -245,9 +245,15 @@ class Ronda():
 
   """dada una lista de manojos: simplemente hace una copia de las cartas
   de las cartas del parametro `manojo` a `self`"""
-  def set_manojos(self, manojos:list[Manojo]):
+  # DEPRECATED
+  # def set_manojos(self, manojos:list[Manojo]):
+  #   for i,m in enumerate(manojos):
+  #     self.manojos[i] = m.cartas
+  #   self.cachear_flores(True)
+
+  def set_cartas(self, manojos:list[list[Carta]]):
     for i,m in enumerate(manojos):
-      self.manojos[i] = m.cartas
+      self.manojos[i].cartas = m
     self.cachear_flores(True)
 
   def set_muestra(self, muestra:Carta):

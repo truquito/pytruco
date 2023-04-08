@@ -1,6 +1,6 @@
 from enum import Enum
 
-class Equipo(str, Enum):
+class Equipo(Enum):
   AZUL = "azul"
   ROJO = "rojo"
 
@@ -12,3 +12,10 @@ class Equipo(str, Enum):
   
   def __repr__(self) -> str:
     return str(self)
+  
+  def __hash__(self) -> str:
+    return 0 if self == Equipo.AZUL \
+      else 1
+  
+  def __eq__(self, other) -> bool:
+    return str(self) == str(other)

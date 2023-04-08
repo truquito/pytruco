@@ -7,11 +7,8 @@ from .envite import EstadoEnvite
 from .truco import EstadoTruco
 from .mano import NumMano, Resultado, CartaTirada
 from .carta import Carta
-from .jugada import IJugada
-from .jugada import TocarEnvido, TocarRealEnvido, TocarFaltaEnvido, \
-  CantarFlor, CantarContraFlor, CantarContraFlorAlResto, GritarTruco, \
-  GritarReTruco, GritarVale4, ResponderQuiero, ResponderNoQuiero, IrseAlMazo, \
-  TirarCarta
+# from .jugada import *
+
 
 from enco.packet import Packet
 from enco.message import Message
@@ -46,7 +43,7 @@ class Partida():
     return self.ronda.manojo(jid)
 
   def get_max_puntaje(self) -> int:
-    return max(self.puntajes.items())
+    return max(self.puntajes.values())
 
   """retorna el equipo que va ganando"""
   def el_que_va_ganando(self) -> Equipo:
@@ -201,7 +198,7 @@ class Partida():
     """
 		TENER EN CUENTA:
 		===============
-		el enum self.ronda.Mano.Resultado \in {GanoRojo,GanoAzul,Empardada}
+		el enum self.ronda.Mano.Resultado \\in {GanoRojo,GanoAzul,Empardada}
 		no me dice el resultado per se,
 		sino:
 			noSeSabe sii (no esta empardada) & (ganador == nil)
@@ -615,6 +612,12 @@ class Partida():
   def cmd(self, cmd:str) -> list[Packet]:
     pkts:list[Packet] = []
 
+    from .jugada import IJugada
+    from .jugada import TocarEnvido, TocarRealEnvido, TocarFaltaEnvido, \
+      CantarFlor, CantarContraFlor, CantarContraFlorAlResto, GritarTruco, \
+      GritarReTruco, GritarVale4, ResponderQuiero, ResponderNoQuiero, \
+      IrseAlMazo, TirarCarta
+
     def parse(cmd:str) -> IJugada:
       nonlocal self
       import re
@@ -641,7 +644,7 @@ class Partida():
                 else None
         
         if x is None: raise Exception("comando invalido")
-        return manojo, x
+        return x
       
       # jugada de tipo tirar-carta ?
       m = re.search("(?i)^([a-zA-Z0-9_-]+) (1|2|3|4|5|6|7|10|11|12) (oro|copa|basto|espada)$", cmd)

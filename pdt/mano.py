@@ -2,7 +2,7 @@ from __future__ import annotations
 from enum import Enum
 from .carta import Carta
 
-class Resultado(str, Enum):
+class Resultado(Enum):
   GANO_ROJO = "ganoRojo"
   GANO_AZUL = "ganoAzul"
   EMPARDADA = "empardada"
@@ -13,7 +13,7 @@ class Resultado(str, Enum):
   def __repr__(self) -> str:
     return str(self)
   
-class NumMano(str, Enum):
+class NumMano(Enum):
   PRIMERA = "primera"
   SEGUNDA = "segunda"
   TERCERA = "tercera"
@@ -23,6 +23,9 @@ class NumMano(str, Enum):
   
   def __repr__(self) -> str:
     return str(self)
+  
+  def __eq__(self, other) -> bool:
+    return str(self) == str(other)
   
   def __lt__(self, other: 'NumMano'):
     if self == other:

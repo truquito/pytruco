@@ -3,7 +3,7 @@ from enum import Enum
 from .jugador import Jugador
 from .manojo import Manojo
 
-class EstadoEnvite(str, Enum):
+class EstadoEnvite(Enum):
 
   DESHABILITADO     = "deshabilitado"
   NOCANTADOAUN      = "noCantadoAun"

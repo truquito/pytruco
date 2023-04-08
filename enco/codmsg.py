@@ -1,6 +1,6 @@
 from enum import Enum
 
-class CodMsg(str, Enum):
+class CodMsg(Enum):
   ERROR                      = "Error"
   BYEBYE                     = "ByeBye"
   DICE_SON_BUENAS            = "DiceSonBuenas"
