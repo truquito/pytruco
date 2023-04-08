@@ -40,7 +40,9 @@ class Partida():
   
   """
   def manojo(self, jid:str) -> Manojo:
-    return self.ronda.manojo(jid)
+    # primer intento
+    m = self.ronda.manojo(jid)
+    return m if m is not None else self.ronda.manojo(jid.capitalize())
 
   def get_max_puntaje(self) -> int:
     return max(self.puntajes.values())
