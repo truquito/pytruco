@@ -617,5 +617,68 @@ def test_tirada1():
 
   assert p.puntajes[Equipo.ROJO] == 1 
 
+def test_parse_jugada():
+  p = Partida(20, ["Alvaro"], ["Roro"])  
+  mu = Carta(3, "oro")
+  p.ronda.muestra = mu
+  p.ronda.set_cartas([
+    [ Carta(2, "Oro"), Carta(6, "Basto"), Carta(7, "Basto") ], # Alvaro tiene flor
+    [ Carta(5, "Oro"), Carta(5, "Espada"), Carta(5, "Basto") ], # Roro no tiene flor
+  ])
+
+  shouldBeOK = [
+    "alvaro envido",
+		"Alvaro real-envido",
+		"Alvaro falta-envido",
+		"Alvaro flor",
+		"Alvaro contra-flor",
+		"Alvaro contra-flor-al-resto",
+		"Alvaro truco",
+		"Alvaro re-truco",
+		"Alvaro vale-4",
+		"Alvaro quiero",
+		"Alvaro no-quiero",
+		"Alvaro mazo",
+		# tiradas
+		"Alvaro 2 oro",
+		"Alvaro 2 ORO",
+		"Alvaro 2 oRo",
+		"Alvaro 6 basto",
+		"Alvaro 7 basto",
+		"Roro 5 Oro",
+		"Roro 5 Espada",
+		"Roro 5 Basto",
+  ]
+
+  for c in shouldBeOK:
+    _ = p.parse_jugada(c)
+
+  shouldNotBeOK = [
+    "Juancito envido",
+		"Juancito envido asd",
+		"Juancito envido 33",
+		"Juancito envid0",
+		# tiradas
+		"Alvaro 2 oroo",
+		"Alvaro 2 oRo ",
+		"Alvaro 6 espada*",
+		"Alvaro 7 asd",
+		"Alvaro 2  copa",
+		"Alvaro 54 Oro ",
+		"Alvaro 0 oro",
+		"Alvaro 9 oro",
+		"Alvaro 8 oro",
+		"Alvaro 111 oro",
+		# roro trata de usar las de alvaro
+		# esto se debe testear en jugadas
+		# "roro 2 oRo",
+		# "roro 6 basto",
+		# "roro 7 basto",
+  ]
+
+  for c in shouldNotBeOK:
+    with pytest.raises(Exception, match='invalido'):
+      _ = p.parse_jugada(c)
+
 
 
