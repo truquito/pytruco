@@ -47,6 +47,11 @@ class NumMano(Enum):
       else 2 if nm == NumMano.SEGUNDA \
       else 3
   
+  def to_ix(self) -> int:
+    return 0 if self == NumMano.PRIMERA \
+      else 1 if self == NumMano.SEGUNDA \
+      else 2
+  
   def inc(nm:NumMano) -> NumMano:
     return NumMano.SEGUNDA if nm == NumMano.PRIMERA else NumMano.TERCERA
 

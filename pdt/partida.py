@@ -215,7 +215,7 @@ class Partida():
     primeraMano = self.ronda.mano_en_juego == NumMano.PRIMERA
 
     # o bien que en la primera mano hayan cantado truco y uno no lo quizo
-    manoActual = NumMano.to_int(self.ronda.mano_en_juego) - 1
+    manoActual = self.ronda.mano_en_juego.to_ix()
     elTrucoNoTuvoRespuesta = self.ronda.truco.estado.es_truco_respondible()
     noFueParda = self.ronda.manos[manoActual].resultado != Resultado.EMPARDADA
     estaManoYaTieneGanador = noFueParda and self.ronda.manos[manoActual].ganador != ""
@@ -225,7 +225,7 @@ class Partida():
 
     noSeAcabo = (primeraMano and hayJugadoresEnAmbos and elTrucoFueQuerido)
     if noSeAcabo:
-      return False, None
+      return False, []
 
     # de aca en mas ya se que hay al menos 2 manos jugadas
     # (excepto el caso en que un equipo haya abandonado)
@@ -233,8 +233,8 @@ class Partida():
     # self.ronda.manos[0] & self.ronda.manos[1]
 
     cantManosGanadas :Dict[Equipo,int] = { Equipo.ROJO: 0, Equipo.AZUL: 0 }
-    n = NumMano.to_int(self.ronda.mano_en_juego)
-    for i in range(manoActual):
+    n = self.ronda.mano_en_juego.to_ix()
+    for i in range(manoActual+1):
       mano = self.ronda.manos[i]
       if mano.resultado != Resultado.EMPARDADA:
         cantManosGanadas[self.ronda.manojo(mano.ganador).jugador.equipo] += 1
@@ -249,7 +249,7 @@ class Partida():
       hayJugadoresEnAmbos and not elTrucoFueNoQuerido
 
     if noSeAcaboAun:
-      return False, None
+      return False, []
     
     # caso particular:
     # no puedo definir quien gano si la seguna mano no tiene definido un resultado
@@ -259,15 +259,15 @@ class Partida():
     segundaManoIndefinida = noEstaEmpardada and noTieneGanador
     # tengo que diferenciar si vengo de: TirarCarta o si vengo de un no quiero:
     # si viniera de un TirarCarta -> en la mano actual (o la anterior)? la ultima carta tirada pertenece al turno actual
-    ix_mano_en_juego = NumMano.to_int(self.ronda.mano_en_juego) - 1
+    ix_mano_en_juego = self.ronda.mano_en_juego.to_ix()
     n = len(self.ronda.manos[ix_mano_en_juego].cartas_tiradas)
     actual = self.ronda.get_el_turno().jugador.id
-    mix = NumMano.to_int(self.ronda.mano_en_juego) - 1
+    mix = self.ronda.mano_en_juego.to_ix()
     ultimaCartaTiradaPerteneceAlTurnoActual = n > 0 and \
       self.ronda.manos[mix].cartas_tiradas[n-1].jugador == actual
     vengoDeTirarCarta = ultimaCartaTiradaPerteneceAlTurnoActual
     if segundaManoIndefinida and hayJugadoresEnAmbos and vengoDeTirarCarta:
-      return False, None
+      return False, []
 
     # hay ganador -> ya se que al final voy a retornar un true
     ganador:str = ""
@@ -636,7 +636,7 @@ class Partida():
                 else TocarFaltaEnvido(manojo.jugador.id) if j == "falta-envido" \
                 else CantarFlor(manojo.jugador.id) if j == "flor" \
                 else CantarContraFlor(manojo.jugador.id) if j == "contra-flor" \
-                else CantarContraFlorAlResto(manojo.jugador.id) if j == "contra-flor" \
+                else CantarContraFlorAlResto(manojo.jugador.id) if j == "contra-flor-al-resto" \
                 else GritarTruco(manojo.jugador.id) if j == "truco" \
                 else GritarReTruco(manojo.jugador.id) if j == "re-truco" \
                 else GritarVale4(manojo.jugador.id) if j == "vale-4" \

@@ -154,7 +154,7 @@ class Carta():
         return 32
       elif self.valor == 11:
         return 31
-      elif self.valor in 10:
+      elif self.valor == 10:
         return 30
       elif self.valor == 12:
         vale_como = Carta(muestra.valor, self.palo)

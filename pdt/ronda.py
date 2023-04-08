@@ -77,10 +77,10 @@ class Ronda():
     return self.manojos[self.turno]
   
   def get_mano_anterior(self) -> Mano:
-    return self.manos[NumMano.to_int(self.mano_en_juego) - 1]
+    return self.manos[self.mano_en_juego.to_ix() - 1]
   
   def get_mano_actual(self) -> Mano:
-    return self.manos[NumMano.to_int(self.mano_en_juego)]
+    return self.manos[self.mano_en_juego.to_ix()]
   
   def get_idx(self, m:Manojo) -> int:
     return self.MIXS[m.jugador.id]

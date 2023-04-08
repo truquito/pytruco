@@ -212,7 +212,7 @@ class TirarCarta(IJugada):
               dest=[m.jugador.id],
               m=Message(
                 CodMsg.NUEVA_RONDA,
-                data=p.perspectiva(m))
+                data=p.perspectiva(m.jugador.id))
             ) for m in p.ronda.manojos ]
 
       # el turno del siguiente queda dado por el ganador de esta
@@ -444,7 +444,7 @@ class TocarRealEnvido(IJugada):
       return pkts
     
     esPrimeraMano = p.ronda.mano_en_juego == NumMano.PRIMERA
-    yaEstabamosEnEnvido = p.ronda.envite.estado == EstadoEnvite.E
+    yaEstabamosEnEnvido = p.ronda.envite.estado == EstadoEnvite.ENVIDO
     elEnvidoEstaPrimero = p.ronda.truco.estado == EstadoTruco.TRUCO and (not yaEstabamosEnEnvido) and esPrimeraMano
 
     if elEnvidoEstaPrimero:
@@ -696,14 +696,14 @@ class CantarFlor(IJugada):
     p.ronda.truco.estado = EstadoTruco.NOCANTADO
 
     # y me elimino de los que no-cantaron
-    p.ronda.envite.cantado_por(p.manojo(self.jid).jugador.id)
+    p.ronda.envite.canto_flor(p.manojo(self.jid).jugador.id)
 
     p.cantar_flor(p.manojo(self.jid))
 
     # es el ultimo en cantar flor que faltaba?
     # o simplemente es el unico que tiene flor (caso particular)
 
-    todosLosJugadoresConFlorCantaron = len(p.Ronda.Envite.SinCantar) == 0
+    todosLosJugadoresConFlorCantaron = len(p.ronda.envite.sin_cantar) == 0
     if todosLosJugadoresConFlorCantaron:
       pkts += CantarFlor.eval(p)
     else:
@@ -743,7 +743,7 @@ class CantarFlor(IJugada):
     autorIdx = p.ronda.JIX(p.ronda.manojo(p.ronda.envite.cantado_por).jugador.id)
     manojoConLaFlorMasAlta, _, res = p.ronda.exec_las_flores(autorIdx)
     pkts += res
-    equipoGanador = manojoConLaFlorMasAlta.Jugador.Equipo
+    equipoGanador = manojoConLaFlorMasAlta.jugador.equipo
 
     # que estaba en juego?
     # switch p.Ronda.Envite.Estado {
@@ -751,9 +751,9 @@ class CantarFlor(IJugada):
     # ahora se quien es el ganador; necesito saber cuantos puntos
     # se le va a sumar a ese equipo:
     # los acumulados del envite hasta ahora
-    puntosASumar = p.Ronda.Envite.Puntaje
+    puntosASumar = p.ronda.envite.puntaje
     p.suma_puntos(equipoGanador, puntosASumar)
-    habiaSolo1JugadorConFlor = len(p.Ronda.Envite.JugadoresConFlor) == 1
+    habiaSolo1JugadorConFlor = len(p.ronda.envite.juegadores_con_flor) == 1
     if habiaSolo1JugadorConFlor:
       pkts += [Packet(
         dest=["ALL"],
@@ -1206,7 +1206,7 @@ class ResponderQuiero(IJugada):
         return pkts, False
     elif laContraFlorEsRespondible:
       # tengo que verificar si efectivamente tiene flor
-      tieneFlor, _ = p.manojo(self.jid).TieneFlor(p.Ronda.Muestra)
+      tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
       esDelEquipoContrario = p.manojo(self.jid).jugador.equipo != p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo
       ok = tieneFlor and esDelEquipoContrario
       if not ok:
@@ -1272,7 +1272,7 @@ class ResponderQuiero(IJugada):
       pkts += res
 
       # manojoConLaFlorMasAlta, _ = p.Ronda.GetLaFlorMasAlta()
-      equipoGanador = manojoConLaFlorMasAlta.Jugador.Equipo
+      equipoGanador = manojoConLaFlorMasAlta.jugador.equipo
 
       if p.ronda.envite.estado == EstadoEnvite.CONTRAFLOR:
         puntosASumar = p.ronda.envite.puntaje
@@ -1411,7 +1411,7 @@ class ResponderNoQuiero(IJugada):
       return pkts
     
     elEnvidoEsRespondible = (p.ronda.envite.estado >= EstadoEnvite.ENVIDO and p.ronda.envite.estado <= EstadoEnvite.FALTAENVIDO) and p.ronda.envite.cantado_por != p.manojo(self.jid).jugador.id
-    laFlorEsRespondible = p.ronda.envite.estado >= EstadoEnvite.FLOR and p.onda.Envite.CantadoPor != p.manojo(self.jid).jugador.id
+    laFlorEsRespondible = p.ronda.envite.estado >= EstadoEnvite.FLOR and p.ronda.envite.cantado_por != p.manojo(self.jid).jugador.id
     elTrucoEsRespondible = p.ronda.truco.estado.es_truco_respondible() and p.ronda.manojo(p.ronda.truco.cantado_por).jugador.equipo != p.manojo(self.jid).jugador.equipo
     
     if elEnvidoEsRespondible:
@@ -1507,7 +1507,7 @@ class ResponderNoQuiero(IJugada):
       )]
 
       # pongo al equipo que propuso el truco como ganador de la mano actual
-      manoActual = NumMano.to_int(p.ronda.mano_en_juego) - 1
+      manoActual = p.ronda.mano_en_juego.to_ix()
       p.ronda.manos[manoActual].ganador = p.ronda.truco.cantado_por
       equipoGanador = Resultado.GANO_AZUL
       if p.ronda.manojo(p.ronda.truco.cantado_por).jugador.equipo == Equipo.ROJO:
@@ -1538,7 +1538,7 @@ class ResponderNoQuiero(IJugada):
               dest=[m.jugador.id],
               m=Message(
                 CodMsg.NUEVA_RONDA,
-                data=p.perspectiva(m))
+                data=p.perspectiva(m.jugador.id))
             ) for m in p.ronda.manojos ]    
     
     return pkts   
@@ -1811,7 +1811,7 @@ class Foo(IJugada):
               dest=[m.jugador.id],
               m=Message(
                 CodMsg.NUEVA_RONDA,
-                data=p.perspectiva(m))
+                data=p.perspectiva(m.jugador.id))
             ) for m in p.ronda.manojos ]    
       
     else:
