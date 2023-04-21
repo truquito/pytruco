@@ -13,6 +13,15 @@ class Resultado(Enum):
   def __repr__(self) -> str:
     return str(self)
   
+  def parse(r:str) -> Resultado:
+    if r not in map(lambda x: str(x), 
+      [Resultado.GANO_ROJO,Resultado.GANO_AZUL,Resultado.EMPARDADA]):
+      raise Exception("Resultado invalido")
+
+    return Resultado.GANO_ROJO if r == Resultado.GANO_ROJO \
+      else Resultado.GANO_AZUL if r == Resultado.GANO_AZUL \
+      else Resultado.EMPARDADA
+  
 class NumMano(Enum):
   PRIMERA = "primera"
   SEGUNDA = "segunda"
@@ -54,6 +63,23 @@ class NumMano(Enum):
   
   def inc(nm:NumMano) -> NumMano:
     return NumMano.SEGUNDA if nm == NumMano.PRIMERA else NumMano.TERCERA
+  
+  # deberia de usarse este, pero en la version Go, el numMano era codificado en
+  # JSON como 0, 1 y 2. Por eso no se usa.
+  def parse(nm:str) -> NumMano:
+    if nm not in map(lambda x: str(x), 
+      [NumMano.PRIMERA,NumMano.SEGUNDA,NumMano.TERCERA]):
+      raise Exception("Palo invalido")
+
+    return NumMano.PRIMERA if nm == NumMano.PRIMERA \
+      else NumMano.SEGUNDA if nm == NumMano.SEGUNDA \
+      else NumMano.TERCERA
+    
+  def parse_int(nm:int) -> NumMano:
+    if not 0 <= nm <= 2: raise Exception("Palo invalido")
+    return NumMano.PRIMERA if nm == 0 \
+      else NumMano.SEGUNDA if nm == 1 \
+      else NumMano.TERCERA
 
 class CartaTirada():
   def __init__(self, jugador:str, carta:Carta):

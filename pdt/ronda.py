@@ -14,7 +14,22 @@ from enco.message import Message
 from enco.codmsg import CodMsg
 
 class Ronda():
-  def __init__(self, azules:list[str], rojos:list[str]):
+  def __init__(self, azules:list[str], rojos:list[str], dummy=False):
+
+    """
+    - crea los Jugador'es
+    - setea el numero de mano
+    - setea el numero de jugadores en juego
+    - setea mano, turno
+    - crea Envite, Truco
+    - crea manojos linkeados a los jugadores
+    - crea el mapping MIXS: str -> int
+    - crea 3 manos vacias
+
+    si no es dummy:
+      - reparte cartas+muestras
+      - cachea flores
+    """
 
     # check
     ok = len(azules) + len(rojos) == len(set(azules+rojos))
@@ -31,15 +46,15 @@ class Ronda():
       ) for i,j in enumerate(jugadores)
     ]
 
-    self.mano_en_juego           :NumMano           = NumMano.PRIMERA
+    self.mano_en_juego  :NumMano  = NumMano.PRIMERA
     self.cant_jugadores_en_juego :Dict[Equipo, int] = {
       Equipo.ROJO: cant_jugadores_por_equipo,
       Equipo.AZUL: cant_jugadores_por_equipo,
     }
-    self.el_mano                 :int               = 0
-    self.turno                   :int               = 0
-    self.envite                  :Envite            = Envite()
-    self.truco                   :Truco             = Truco()
+    self.el_mano  :int    = 0
+    self.turno    :int    = 0
+    self.envite   :Envite = Envite()
+    self.truco    :Truco  = Truco()
     
     self.manojos :list[Manojo] = [
       Manojo(j) for j in jugadores
@@ -48,13 +63,17 @@ class Ronda():
     self.MIXS :Dict[str, int] = None
     self.indexar_manojos()
 
+    self.manos :list[Mano] = [Mano() for _ in range(3)]
+    
     # reparto 3 cartas al azar a cada jugador
 	  # y ademas una muestra, tambien al azar.
     self.muestra :Carta = None
+    
+    if dummy: return;
+  
     self.repartir_cartas()
     self.cachear_flores(reset=True)
     
-    self.manos :list[Mano] = [Mano() for _ in range(3)]
   
   # GETTERS
 

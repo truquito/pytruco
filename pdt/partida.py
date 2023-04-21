@@ -1,9 +1,11 @@
 from __future__ import annotations
 from typing import Dict
 import re
+import json
 
 from .equipo import Equipo
 from .ronda import Ronda
+from .jugador import Jugador
 from .manojo import Manojo
 from .envite import EstadoEnvite
 from .truco import EstadoTruco
@@ -31,7 +33,7 @@ class IJugada():
     return str(self)
   
 class Partida():
-  def __init__(self, puntuacion:int, azules:list[str], rojos:list[str]):
+  def __init__(self, puntuacion:int, azules:list[str], rojos:list[str], dummy=False):
     if puntuacion not in [20,30,40]:
       raise Exception("el valor de la partida no es valido")
 
@@ -47,7 +49,8 @@ class Partida():
       Equipo.AZUL: 0,
       Equipo.ROJO: 0,
     }
-    self.ronda = Ronda(azules, rojos)
+
+    self.ronda = Ronda(azules, rojos, dummy)
 
   """
   
@@ -564,18 +567,6 @@ class Partida():
 
   def nueva_ronda(self, el_mano:int) -> None:
     self.ronda.nueva_ronda(el_mano)
-  
-  """
-  
-  metodos de parseo y dumpeo JSON .to_json(...) .parse(...)
-  
-  """
-
-  def to_json(self) -> any:
-    pass
-
-  def parse(data:str) -> Partida:
-    pass
 
 
   """
@@ -682,7 +673,111 @@ class Partida():
 
     return pkts
 
+  """
+  
+  metodos de parseo y dumpeo JSON .to_json(...) .parse(...)
+  
+  """
 
+  def to_json(self) -> any:
+    pass
+
+  @staticmethod
+  def parse(data:str) -> Partida:
+    if not isinstance(data, str):
+      raise Exception("el valor de la partida no es valido")
+    
+    d: Dict[str,any] = json.loads(data)
+
+    equipos = list(d["puntajes"].keys())
+    e1 = equipos[0]
+    e2 = equipos[1]
+    jugadores = [m["jugador"]["id"] for m in d["ronda"]["manojos"]]
+
+    p = Partida(
+      puntuacion=int(d["puntuacion"]),
+      azules=jugadores[0::2],
+      rojos=jugadores[1::2],
+      dummy=True
+    )
+
+    p.puntajes[Equipo.AZUL] = int(d["puntajes"][e1])
+    p.puntajes[Equipo.ROJO] = int(d["puntajes"][e2])
+
+    # setea el numero de mano
+    p.ronda.mano_en_juego = NumMano.parse_int(int(d["ronda"]["manoEnJuego"]))
+
+    # setea el numero de jugadores en juego
+    p.ronda.cant_jugadores_en_juego[Equipo.AZUL] = int(d["ronda"]["cantJugadoresEnJuego"][e1])
+    p.ronda.cant_jugadores_en_juego[Equipo.ROJO] = int(d["ronda"]["cantJugadoresEnJuego"][e2])
+
+    # setea mano, turno
+    p.ronda.el_mano = int(d["ronda"]["elMano"])
+    p.ronda.turno = int(d["ronda"]["turno"])
+    
+    # carga Envite
+    p.ronda.envite.cantado_por = d["ronda"]["envite"]["cantadoPor"]
+    p.ronda.envite.puntaje = int(d["ronda"]["envite"]["puntaje"])
+    p.ronda.envite.estado = EstadoEnvite.parse(d["ronda"]["envite"]["estado"])
+    p.ronda.envite.sin_cantar = d["ronda"]["envite"]["sinCantar"]
+    
+    # carga Truco
+    p.ronda.truco.cantado_por = d["ronda"]["truco"]["cantadoPor"]
+    p.ronda.truco.estado = EstadoTruco.parse(d["ronda"]["truco"]["estado"])
+
+    # crea manojos linkeados a los jugadores
+    p.ronda.manojos = [
+      Manojo(
+        Jugador(
+          id=m["jugador"]["id"],
+          equipo=Equipo.AZUL if jid % 2 == 0 else Equipo.ROJO
+        )
+      ) for jid,m in enumerate(d["ronda"]["manojos"])
+    ]
+
+    # carga cartas de manojos
+    for ix, m in enumerate(p.ronda.manojos):
+      m.ultima_tirada = int(d["ronda"]["manojos"][ix]["ultimaTirada"])
+      m.tiradas = d["ronda"]["manojos"][ix]["tiradas"]
+      m.se_fue_al_mazo = d["ronda"]["manojos"][ix]["seFueAlMazo"]
+      m.cartas = [
+        Carta(int(c["valor"]), c["palo"]) \
+        for c in d["ronda"]["manojos"][ix]["cartas"]
+      ]
+
+    # crea el mapping MIXS: str -> int
+    p.ronda.MIXS = d["ronda"]["mixs"]
+
+    # carga muestras
+    p.ronda.muestra = Carta(
+      valor=int(d["ronda"]["muestra"]["valor"]),
+      palo=d["ronda"]["muestra"]["palo"]
+    )
+
+    # carga manos + cartas tiradas
+    for ix, m in enumerate(p.ronda.manos):
+      # ojo, en una version mas nueva del protocolo de codificacion puede que
+      # no existan TODAS las manos en el JSON.
+      m.resultado = Resultado.parse(d["ronda"]["manos"][ix]["resultado"])
+      m.ganador = d["ronda"]["manos"][ix]["ganador"]
+      if d["ronda"]["manos"][ix]["cartasTiradas"] is not None:
+        m.cartas_tiradas = [
+          CartaTirada(
+            jugador=t["jugador"],
+            carta=Carta(
+              valor=int(t["carta"]["valor"]),
+              palo=t["carta"]["palo"]
+            )
+          ) for t in d["ronda"]["manos"][ix]["cartasTiradas"]
+        ]
+
+    # cachea flores, SIN RESET
+    p.ronda.cachear_flores(reset=False)
+
+    return p
+
+
+    
 
 
 

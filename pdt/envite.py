@@ -1,3 +1,4 @@
+from __future__ import annotations
 # from pdt import equipo
 from enum import Enum
 from .jugador import Jugador
@@ -35,10 +36,22 @@ class EstadoEnvite(Enum):
   def __le__(self, other: 'EstadoEnvite'):
     return self < other or self == other
   
-  # def to_ptr(self) -> int:
-  #   return 33 if self == MyEnum.first_item \
-  #     else 44 if self == MyEnum.whatever \
-  #     else 55
+  def parse(ee:str) -> EstadoEnvite:
+    if ee not in map(lambda x: str(x), [ 
+        EstadoEnvite.DESHABILITADO, EstadoEnvite.NOCANTADOAUN, 
+        EstadoEnvite.ENVIDO, EstadoEnvite.REALENVIDO, EstadoEnvite.FALTAENVIDO, 
+        EstadoEnvite.FLOR, EstadoEnvite.CONTRAFLOR, 
+        EstadoEnvite.CONTRAFLORALRESTO ]):
+      raise Exception("Estado envite invalido")
+    
+    return EstadoEnvite.DESHABILITADO if ee == EstadoEnvite.DESHABILITADO \
+      else EstadoEnvite.NOCANTADOAUN if ee == EstadoEnvite.NOCANTADOAUN \
+      else EstadoEnvite.ENVIDO if ee == EstadoEnvite.ENVIDO \
+      else EstadoEnvite.REALENVIDO if ee == EstadoEnvite.REALENVIDO \
+      else EstadoEnvite.FALTAENVIDO if ee == EstadoEnvite.FALTAENVIDO \
+      else EstadoEnvite.FLOR if ee == EstadoEnvite.FLOR \
+      else EstadoEnvite.CONTRAFLOR if ee == EstadoEnvite.CONTRAFLOR \
+      else EstadoEnvite.CONTRAFLORALRESTO
   
 class Envite():
   def __init__(self):
