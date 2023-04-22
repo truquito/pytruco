@@ -847,3 +847,78 @@ def test_fix_contra_flor():
 
   assert p.puntajes[Equipo.ROJO] > p.puntajes[Equipo.AZUL]
   
+def test_partida_comandos_invalidos():
+  data = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":2,"Rojo":2},"elMano":0,"turno":0,"pies":[0,0],"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":[]},"truco":{"cantadoPor":null,"estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":5},{"palo":"Copa","valor":4},{"palo":"Copa","valor":6}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alvaro","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":6},{"palo":"Basto","valor":7},{"palo":"Espada","valor":1}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Roro","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":2},{"palo":"Espada","valor":7},{"palo":"Oro","valor":11}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Adolfo","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":2},{"palo":"Oro","valor":2},{"palo":"Espada","valor":12}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Renzo","equipo":"Rojo"}}],"muestra":{"palo":"Basto","valor":11},"manos":[{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null}]}}'
+  p = Partida.parse(data)
+  p.cmd("Alvaro Envido")
+
+  with pytest.raises(Exception, match='comando invalido'):
+    p.cmd("Quiero")
+
+  assert p.ronda.envite.estado == EstadoEnvite.ENVIDO
+
+  with pytest.raises(Exception, match='comando invalido'):
+    p.cmd("Schumacher Flor")
+
+  assert p.ronda.envite.estado == EstadoEnvite.ENVIDO
+
+def test_fix_nacho():
+  data = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":3,"Rojo":3},"elMano":0,"turno":0,"pies":[0,0],"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":["Richard"]},"truco":{"cantadoPor":null,"estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":2},{"palo":"Copa","valor":7},{"palo":"Basto","valor":6}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alvaro","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":2},{"palo":"Copa","valor":6},{"palo":"Oro","valor":6}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Roro","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":11},{"palo":"Espada","valor":1},{"palo":"Basto","valor":4}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Adolfo","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":3},{"palo":"Basto","valor":7},{"palo":"Oro","valor":11}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Renzo","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":5},{"palo":"Basto","valor":12},{"palo":"Espada","valor":10}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Andres","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":6},{"palo":"Espada","valor":5},{"palo":"Espada","valor":11}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Richard","equipo":"Rojo"}}],"muestra":{"palo":"Espada","valor":3},"manos":[{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null}]}}'
+  p = Partida.parse(data)
+
+  p.cmd("alvaro 6 basto")
+  p.cmd("roro 2 basto")
+  cantTiradasRoro = p.manojo("Roro").get_cant_cartas_tiradas()
+  assert cantTiradasRoro == 1
+
+  p.cmd("Adolfo 4 basto")
+  p.cmd("renzo 7 basto")
+  p.cmd("andres 10 espada")
+  p.cmd("richard flor")
+  assert p.ronda.envite.estado == EstadoEnvite.DESHABILITADO
+
+  p.cmd("richard 11 espada")
+  assert p.ronda.get_el_turno().jugador.id == "Richard"
+
+  p.cmd("richard truco")
+  assert p.ronda.truco.estado == EstadoTruco.TRUCO
+
+  p.cmd("roro quiero")
+  assert p.ronda.truco.estado == EstadoTruco.TRUCO
+
+  p.cmd("adolfo quiero")
+  p.cmd("richard 5 espada")
+  p.cmd("alvaro mazo")
+  p.cmd("roro quiero")
+  assert p.ronda.manojo(p.ronda.truco.cantado_por).jugador.id == "Adolfo"
+
+  # syntaxis invalida
+  with pytest.raises(Exception, match='comando invalido'):
+    p.cmd("roro retruco")
+
+  p.cmd("roro re-truco")
+  assert p.ronda.manojo(p.ronda.truco.cantado_por).jugador.id == "Adolfo"
+
+  p.cmd("alvaro re-truco")
+  assert p.ronda.manojo(p.ronda.truco.cantado_por).jugador.id == "Adolfo"
+
+  p.cmd("Adolfo re-truco")
+  assert p.ronda.truco.estado == EstadoTruco.RETRUCO
+
+  p.cmd("renzo quiero")
+  assert p.ronda.truco.estado == EstadoTruco.RETRUCOQUERIDO
+  assert p.ronda.manojo(p.ronda.truco.cantado_por).jugador.id == "Renzo"
+
+  p.cmd("roro 6 copa")
+  assert cantTiradasRoro == 1
+
+  p.cmd("adolfo re-truco")
+  assert p.ronda.manojo(p.ronda.truco.cantado_por).jugador.id == "Renzo"
+
+  p.cmd("adolfo 1 espada")
+
+  p.cmd("renzo 3 oro")
+  assert p.ronda.get_el_turno().jugador.id == "Andres"
+
+  p.cmd("andres mazo")
+
