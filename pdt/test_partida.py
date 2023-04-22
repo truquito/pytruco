@@ -922,3 +922,109 @@ def test_fix_nacho():
 
   p.cmd("andres mazo")
 
+def test_fix_no_flor():
+  data = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":3,"Rojo":3},"elMano":0,"turno":0,"pies":[0,0],"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":["Andres","Richard"]},"truco":{"cantadoPor":null,"estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":6},{"palo":"Basto","valor":4},{"palo":"Espada","valor":5}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alvaro","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":7},{"palo":"Basto","valor":11},{"palo":"Basto","valor":7}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Roro","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":12},{"palo":"Basto","valor":1},{"palo":"Copa","valor":3}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Adolfo","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":5},{"palo":"Espada","valor":7},{"palo":"Oro","valor":1}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Renzo","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":4},{"palo":"Basto","valor":6},{"palo":"Espada","valor":11}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Andres","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":11},{"palo":"Copa","valor":2},{"palo":"Espada","valor":10}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Richard","equipo":"Rojo"}}],"muestra":{"palo":"Espada","valor":3},"manos":[{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null}]}}'
+  p = Partida.parse(data)
+
+  p.cmd("alvaro 4 basto")
+	# << Alvaro tira la carta 4 de pdt.Basto
+
+  p.cmd("roro truco")
+
+  # No es posible responder al truco ahora porque
+  # "la flor esta primero":
+  # el otro que tiene flor, pero se arruga
+  p.cmd("richard no-quiero")
+
+  assert p.ronda.truco.estado == EstadoTruco.NOCANTADO
+
+  p.cmd("andres flor")
+  p.cmd("richard flor")
+  # << +6 puntos para el equipo pdt.Azul por las flores
+
+  p.cmd("adolfo 12 oro")
+  # No era su turno, no puede tirar la carta
+
+  p.cmd("roro truco")
+  # << Roro grita truco
+
+  p.cmd("andres quiero")
+  # << Andres responde quiero
+
+  p.cmd("roro 7 copa")
+  # << Roro tira la carta 7 de pdt.Copa
+
+  p.cmd("adolfo 12 oro")
+  # << Adolfo tira la carta 12 de pdt.Oro
+
+  p.cmd("renzo 5 oro")
+  # << Renzo tira la carta 5 de pdt.Oro
+
+  p.cmd("andres flor")
+  # No es posible cantar flor
+
+  p.cmd("andres 6 basto")
+  # << Andres tira la carta 6 de pdt.Basto
+
+  p.cmd("richard flor")
+  # no deberia dejarlo porque ya se jugo
+
+  p.cmd("richard 11 copa")
+  # << Richard tira la carta 11 de pdt.Copa
+
+  """
+  # << La Primera mano la gano Adolfo (equipo pdt.Azul)
+  # << Es el turno de Adolfo
+  """
+
+  p.cmd("adolfo re-truco")
+  # << Adolfo grita re-truco
+
+  p.cmd("richard quiero")
+  # << Richard responde quiero
+
+  p.cmd("richard vale-4")
+  # << Richard grita vale 4
+
+  assert p.ronda.truco.estado == EstadoTruco.VALE4
+
+  p.cmd("adolfo quiero")
+  # << Adolfo responde quiero
+
+  assert p.ronda.truco.estado == EstadoTruco.VALE4QUERIDO
+
+  """
+  # ACA EMPIEZAN A TIRAR CARTAS PARA LA SEGUNDA MANO
+  # muesta: 3 espada
+  """
+
+  p.cmd("adolfo 1 basto")
+  # << Adolfo tira la carta 1 de pdt.Basto
+
+  p.cmd("renzo 7 espada")
+  # << Renzo tira la carta 7 de pdt.Espada
+
+  p.cmd("andres 4 espada")
+  # << Andres tira la carta 4 de pdt.Espada
+
+  p.cmd("richard 10 espada")
+  # << Richard tira la carta 10 de pdt.Espada
+
+  p.cmd("alvaro 6 espada")
+  # << Alvaro tira la carta 6 de pdt.Espada
+
+  p.cmd("roro re-truco")
+  # << Alvaro tira la carta 6 de pdt.Espada
+
+  p.cmd("roro mazo")
+  # << Roro se va al mazo
+
+  # era el ultimo que quedaba por tirar en esta mano
+  # -> que evalue la mano
+
+  # << +4 puntos para el equipo pdt.Azul por el vale4Querido no querido por Roro
+  # << Empieza una nueva ronda
+  # << Empieza una nueva ronda
+
+  """6 de las 2 flores"""
+  # assert p.GetMaxPuntaje() == 6+4

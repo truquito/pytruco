@@ -188,9 +188,9 @@ class Partida():
     self.ronda.truco.cantado_por = m.jugador.id
     self.ronda.truco.estado = EstadoTruco.RETRUCO
   
-  def gritar_retruco(self, m:Manojo) -> None:
+  def gritar_vale4(self, m:Manojo) -> None:
       self.ronda.truco.cantado_por = m.jugador.id
-      self.ronda.truco.estado = EstadoTruco.RETRUCO
+      self.ronda.truco.estado = EstadoTruco.VALE4
 
   """manda el manojo al mazo
   todo: esto podria ser un metodo de Ronda, no de partida"""

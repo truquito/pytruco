@@ -1099,7 +1099,7 @@ class GritarVale4(IJugada):
         CodMsg.GRITAR_VALE4,
         data=p.manojo(self.jid).jugador.id)
     )]
-    p.gritar_retruco(p.manojo(self.jid))
+    p.gritar_vale4(p.manojo(self.jid))
 
     return pkts   
 
