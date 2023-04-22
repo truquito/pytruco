@@ -780,3 +780,28 @@ def test_parse2():
     assert m.tiradas == tiradas
     assert m.ultima_tirada == ult_tir
   
+def test_fix_flor():
+  data = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":3,"Rojo":3},"elMano":0,"turno":0,"pies":[0,0],"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":["Richard"]},"truco":{"cantadoPor":null,"estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":6},{"palo":"Basto","valor":12},{"palo":"Oro","valor":2}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alvaro","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":5},{"palo":"Basto","valor":10},{"palo":"Oro","valor":4}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Roro","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":10},{"palo":"Copa","valor":10},{"palo":"Basto","valor":2}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Adolfo","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":6},{"palo":"Espada","valor":10},{"palo":"Basto","valor":3}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Renzo","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":6},{"palo":"Copa","valor":3},{"palo":"Espada","valor":1}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Andres","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":3},{"palo":"Espada","valor":11},{"palo":"Espada","valor":4}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Richard","equipo":"Rojo"}}],"muestra":{"palo":"Oro","valor":1},"manos":[{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null}]}}'
+  p = Partida.parse(data)
+
+  p.cmd("alvaro envido")
+  assert p.ronda.envite.estado == EstadoEnvite.DESHABILITADO
+  assert p.puntajes[Equipo.ROJO] == 3
+
+  p.cmd("alvaro 6 espada")
+  p.cmd("alvaro 6 espada")
+  p.cmd("roro 5 espada")
+  p.cmd("adolfo 10 oro")
+  p.cmd("renzo 6 basto")
+  p.cmd("andres 6 copa")
+  p.cmd("richard 3 espada")
+  p.cmd("adolfo 10 copa")
+  p.cmd("renzo 10 espada")
+  p.cmd("andres 3 copa")
+  p.cmd("richard 11 espada")
+  p.cmd("alvaro 12 basto")
+  p.cmd("roro 10 basto")
+  
+  assert p.puntajes[Equipo.ROJO] == 3
+  assert p.puntajes[Equipo.AZUL] == 1
+  
