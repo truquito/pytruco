@@ -5,6 +5,7 @@ from .equipo import Equipo
 from .manojo import Manojo
 from .partida import Partida
 from .envite import EstadoEnvite
+from .truco import EstadoTruco
 from .mano import NumMano, Resultado
 
 def test_envido_quiero():
@@ -715,7 +716,67 @@ def test_partida1():
 
   p.cmd("Alvaro Quiero")
 
-def test_parse():
-  # p = Partida(20, ["Alvaro", "Adolfo", "Andres"], ["Roro", "Renzo", "Richard"])  
-  data = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":2,"Rojo":2},"elMano":0,"turno":0,"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":["Ariana"]},"truco":{"cantadoPor":"","estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":4},{"palo":"Basto","valor":1},{"palo":"Basto","valor":11}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alice","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":2},{"palo":"Copa","valor":5},{"palo":"Copa","valor":7}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Bob","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":3},{"palo":"Oro","valor":7},{"palo":"Oro","valor":2}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Ariana","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":11},{"palo":"Basto","valor":6},{"palo":"Copa","valor":2}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Ben","equipo":"Rojo"}}],"mixs":{"Alice":0,"Ariana":2,"Ben":3,"Bob":1},"muestra":{"palo":"Oro","valor":5},"manos":[{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null}]}}'
+def test_parse1():
+  data = '{"puntuacion":20,"puntajes":{"Azul":3,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":2,"Rojo":2},"elMano":1,"turno":2,"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":["Ariana"]},"truco":{"cantadoPor":"","estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":4},{"palo":"Basto","valor":1},{"palo":"Basto","valor":11}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alice","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":2},{"palo":"Copa","valor":5},{"palo":"Copa","valor":7}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Bob","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":3},{"palo":"Oro","valor":7},{"palo":"Oro","valor":2}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Ariana","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":11},{"palo":"Basto","valor":6},{"palo":"Copa","valor":2}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Ben","equipo":"Rojo"}}],"mixs":{"Alice":0,"Ariana":2,"Ben":3,"Bob":1},"muestra":{"palo":"Oro","valor":5},"manos":[{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null}]}}'
   p = Partida.parse(data)
+  assert p.puntajes[Equipo.AZUL] == 3 and p.puntajes[Equipo.ROJO] == 0
+  assert p.puntuacion == 20
+  assert p.ronda.cant_jugadores_en_juego[Equipo.AZUL] == 2
+  assert p.ronda.cant_jugadores_en_juego[Equipo.ROJO] == 2
+  assert p.ronda.el_mano == 1
+  assert p.ronda.turno == 2
+  assert p.ronda.mano_en_juego == NumMano.PRIMERA
+  assert len(p.ronda.manos) == 3
+  # envite
+  assert p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN
+  assert p.ronda.envite.puntaje == 0
+  assert p.ronda.envite.cantado_por == ""
+  assert p.ronda.envite.sin_cantar == ["Ariana"]
+  # truco
+  assert p.ronda.truco.estado == EstadoTruco.NOCANTADO
+  assert p.ronda.truco.cantado_por == ""
+  # manojos
+  manojos = [
+    ("Alice", [Carta(4,"Espada"), Carta(1,"Basto"), Carta(11,"Basto")], [False,False,False], 0),
+    ("Bob", [Carta(2,"Basto"), Carta(5,"Copa"), Carta(7,"Copa")], [False,False,False], 0),
+    ("Ariana", [Carta(3,"Oro"), Carta(7,"Oro"), Carta(2,"Oro")], [False,False,False], 0),
+    ("Ben", [Carta(11,"Copa"), Carta(6,"Basto"), Carta(2,"Copa")], [False,False,False], 0),
+  ]
+  for i,m in enumerate(p.ronda.manojos):
+    nom, cartas, tiradas, ult_tir = manojos[i]
+    assert m.jugador.id == nom
+    assert m.cartas == cartas
+    assert m.tiradas == tiradas
+    assert m.ultima_tirada == ult_tir
+
+def test_parse2():
+  data = '{"puntuacion":40,"puntajes":{"Azul":1,"Rojo":6},"ronda":{"manoEnJuego":2,"cantJugadoresEnJuego":{"Azul":1,"Rojo":1},"elMano":0,"turno":1,"envite":{"estado":"deshabilitado","puntaje":2,"cantadoPor":"Bob","sinCantar":[]},"truco":{"cantadoPor":"Bob","estado":"reTrucoQuerido"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":1},{"palo":"Basto","valor":2},{"palo":"Oro","valor":6}],"tiradas":[true,true,false],"ultimaTirada":1,"jugador":{"id":"Alice","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":7},{"palo":"Oro","valor":10},{"palo":"Copa","valor":5}],"tiradas":[true,false,true],"ultimaTirada":2,"jugador":{"id":"Bob","equipo":"Rojo"}}],"mixs":{"Alice":0,"Bob":1},"muestra":{"palo":"Copa","valor":2},"manos":[{"resultado":"ganoAzul","ganador":"Alice","cartasTiradas":[{"jugador":"Alice","carta":{"palo":"Copa","valor":1}},{"jugador":"Bob","carta":{"palo":"Copa","valor":7}}]},{"resultado":"ganoRojo","ganador":"Bob","cartasTiradas":[{"jugador":"Alice","carta":{"palo":"Basto","valor":2}},{"jugador":"Bob","carta":{"palo":"Copa","valor":5}}]},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null}]}}'
+  p = Partida.parse(data)
+  assert p.puntajes[Equipo.AZUL] == 1 and p.puntajes[Equipo.ROJO] == 6
+  assert p.puntuacion == 40
+  assert p.ronda.cant_jugadores_en_juego[Equipo.AZUL] == 1
+  assert p.ronda.cant_jugadores_en_juego[Equipo.ROJO] == 1
+  assert p.ronda.el_mano == 0
+  assert p.ronda.turno == 1
+  assert p.ronda.mano_en_juego == NumMano.TERCERA
+  assert len(p.ronda.manos) == 3
+  # envite
+  assert p.ronda.envite.estado == EstadoEnvite.DESHABILITADO
+  assert p.ronda.envite.puntaje == 2
+  assert p.ronda.envite.cantado_por == "Bob"
+  assert p.ronda.envite.sin_cantar == []
+  # truco
+  assert p.ronda.truco.estado == EstadoTruco.RETRUCOQUERIDO
+  assert p.ronda.truco.cantado_por == "Bob"
+  # manojos
+  manojos = [
+    ("Alice", [Carta(1,"Copa"), Carta(2,"Basto"), Carta(6,"Oro")], [True,True,False], 1),
+    ("Bob", [Carta(7,"Copa"), Carta(10,"Oro"), Carta(5,"Copa")], [True,False,True], 2),
+  ]
+  for i,m in enumerate(p.ronda.manojos):
+    nom, cartas, tiradas, ult_tir = manojos[i]
+    assert m.jugador.id == nom
+    assert m.cartas == cartas
+    assert m.tiradas == tiradas
+    assert m.ultima_tirada == ult_tir
+  

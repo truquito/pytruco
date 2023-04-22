@@ -21,6 +21,9 @@ class EstadoEnvite(Enum):
   def __repr__(self) -> str:
     return str(self)
   
+  def __eq__(self, other) -> bool:
+    return str(self) == str(other)
+  
   def __lt__(self, other: 'EstadoEnvite'):
     if self == other:
       return False
