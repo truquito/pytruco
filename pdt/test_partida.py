@@ -1028,3 +1028,100 @@ def test_fix_no_flor():
 
   """6 de las 2 flores"""
   # assert p.GetMaxPuntaje() == 6+4
+
+def test_fix_panic():
+  data = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":3,"Rojo":3},"elMano":0,"turno":0,"pies":[0,0],"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":["Richard"]},"truco":{"cantadoPor":null,"estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":2},{"palo":"Copa","valor":7},{"palo":"Basto","valor":6}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alvaro","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":2},{"palo":"Copa","valor":6},{"palo":"Oro","valor":6}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Roro","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":11},{"palo":"Espada","valor":1},{"palo":"Basto","valor":4}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Adolfo","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":3},{"palo":"Basto","valor":7},{"palo":"Oro","valor":11}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Renzo","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":5},{"palo":"Basto","valor":12},{"palo":"Espada","valor":10}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Andres","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":6},{"palo":"Espada","valor":5},{"palo":"Espada","valor":11}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Richard","equipo":"Rojo"}}],"muestra":{"palo":"Espada","valor":3},"manos":[{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null}]}}'
+  p = Partida.parse(data)
+
+  p.cmd("alvaro 6 basto")
+  # << Alvaro tira la carta 6 de pdt.Basto
+  p.cmd("roro 2 basto")
+  # << Roro tira la carta 2 de pdt.Basto
+  p.cmd("Adolfo 4 basto")
+  # << Adolfo tira la carta 4 de pdt.Basto
+  p.cmd("renzo 7 basto")
+  # << Renzo tira la carta 7 de pdt.Basto
+  p.cmd("andres 10 espada")
+  # << Andres tira la carta 10 de pdt.Espada
+  p.cmd("richard flor")
+  # << Richard canta flor
+  # << +3 puntos para el equipo pdt.Rojo (por ser la unica flor de esta ronda)
+  p.cmd("richard 11 espada")
+  # << Richard tira la carta 11 de pdt.Espada
+  """
+    # << La Mano resulta parda
+    # << Es el turno de Richard
+  """
+  # ERROR: no la deberia ganar andres porque es mano (DUDA)
+  p.cmd("richard truco")
+  # << Richard grita truco
+  p.cmd("roro quiero")
+  # (Para Roro) No hay nada "que querer"; ya que: el estado del envido no es "envido" (o mayor) y el estado del truco no es "truco" (o mayor) o bien fue cantado por uno de su equipo
+  p.cmd("adolfo quiero")
+  # << Adolfo responde quiero
+  p.cmd("richard 5 espada")
+  # << Richard tira la carta 5 de pdt.Espada
+  p.cmd("alvaro mazo")
+  # << Alvaro se va al mazo
+  p.cmd("roro quiero")
+  # (Para Roro) No hay nada "que querer"; ya que: el estado del envido no es "envido" (o mayor) y el estado del truco no es "truco" (o mayor) o bien fue cantado por uno de su equipo
+  with pytest.raises(Exception, match='comando invalido'):
+    p.cmd("roro retruco")
+    # << No esxiste esa jugada
+  p.cmd("roro re-truco")
+  # No es posible cantar re-truco ahora
+  p.cmd("alvaro re-truco") # ya que se fue al mazo
+  # No es posible cantar re-truco ahora
+  p.cmd("Adolfo re-truco") # no es su turno ni el de su equipo
+  # No es posible cantar re-truco ahora
+  p.cmd("roro 6 copa")
+  # << Roro tira la carta 6 de pdt.Copa
+  p.cmd("adolfo re-truco")
+  # << Adolfo grita re-truco
+  p.cmd("adolfo 1 espada")
+  # << Adolfo tira la carta 1 de pdt.Espada
+  with pytest.raises(Exception, match='comando invalido'):
+    p.cmd("renzo retruco")
+  # << No esxiste esa jugada
+  p.cmd("renzo re-truco") # ya que ya lo canto adolfo
+  # No es posible cantar re-truco ahora
+  p.cmd("renzo mazo")
+  # << Renzo se va al mazo
+
+  p.cmd("andres mazo")
+
+def test_fix_bocha():
+  data = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":3,"Rojo":3},"elMano":0,"turno":0,"pies":[0,0],"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":[]},"truco":{"cantadoPor":null,"estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":10},{"palo":"Espada","valor":7},{"palo":"Basto","valor":1}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alvaro","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":12},{"palo":"Espada","valor":11},{"palo":"Oro","valor":12}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Roro","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":12},{"palo":"Oro","valor":6},{"palo":"Basto","valor":4}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Adolfo","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":7},{"palo":"Basto","valor":10},{"palo":"Copa","valor":1}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Renzo","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":2},{"palo":"Copa","valor":3},{"palo":"Oro","valor":1}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Andres","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":10},{"palo":"Oro","valor":2},{"palo":"Copa","valor":7}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Richard","equipo":"Rojo"}}],"muestra":{"palo":"Copa","valor":6},"manos":[{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null}]}}'
+  p = Partida.parse(data)
+
+  p.cmd("alvaro mazo")
+  # << Alvaro se va al mazo
+  p.cmd("adolfo mazo")
+  # << Adolfo se va al mazo
+  p.cmd("andres mazo")
+  # << Andres se va al mazo
+
+  assert p.puntajes[Equipo.ROJO] == 1 and p.puntajes[Equipo.AZUL] == 0
+  assert p.ronda.get_el_mano().jugador.equipo == Equipo.ROJO
+
+def test_fix_bocha_parte2():
+  data = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":3,"Rojo":3},"elMano":0,"turno":0,"pies":[0,0],"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":[]},"truco":{"cantadoPor":null,"estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":10},{"palo":"Espada","valor":7},{"palo":"Basto","valor":1}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alvaro","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":12},{"palo":"Espada","valor":11},{"palo":"Oro","valor":12}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Roro","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":12},{"palo":"Oro","valor":6},{"palo":"Basto","valor":4}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Adolfo","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":7},{"palo":"Basto","valor":10},{"palo":"Copa","valor":1}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Renzo","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":2},{"palo":"Copa","valor":3},{"palo":"Oro","valor":1}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Andres","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Espada","valor":10},{"palo":"Oro","valor":2},{"palo":"Copa","valor":7}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Richard","equipo":"Rojo"}}],"muestra":{"palo":"Copa","valor":6},"manos":[{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null},{"resultado":"ganoRojo","ganador": "","cartasTiradas":null}]}}'
+  p = Partida.parse(data)
+
+  p.cmd("roro envido")
+  # No es posible cantar 'Envido'
+  p.cmd("andres quiero")
+  # (Para Andres) No hay nada "que querer"; ya que: el estado del envido no es "envido" (o mayor) y el estado del truco no es "truco" (o mayor) o bien fue cantado por uno de su equipo
+  p.cmd("andres quiero")
+  # (Para Andres) No hay nada "que querer"; ya que: el estado del envido no es "envido" (o mayor) y el estado del truco no es "truco" (o mayor) o bien fue cantado por uno de su equipo
+  p.cmd("alvaro mazo")
+  # << Alvaro se va al mazo
+  with pytest.raises(Exception):
+    p.cmd("adolfo 1 copa")
+  # Esa carta no se encuentra en este manojo
+  p.cmd("adolfo mazo")
+  # << Adolfo se va al mazo
+  p.cmd("andres mazo")
+  # << Andres se va al mazo
+
+  assert p.puntajes[Equipo.ROJO] == 1 and p.puntajes[Equipo.AZUL] == 0
