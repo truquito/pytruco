@@ -447,7 +447,7 @@ class Ronda():
         break
     
     if soloUnEquipoTieneFlores:
-      return self.envite.juegadores_con_flor[0], 0, None
+      return self.envite.juegadores_con_flor[0], 0, []
 
     # decir flores en orden segun las reglas:
     # empieza el autor del envite
