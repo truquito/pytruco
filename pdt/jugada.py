@@ -318,7 +318,7 @@ class TocarEnvido(IJugada):
       jid = p.ronda.envite.sin_cantar[0]
       # j = p.ronda.Manojo(jid)
       siguienteJugada = CantarFlor(jid)
-      res = siguienteJugada.Hacer(p)
+      res = siguienteJugada.hacer(p)
       pkts += res
     else:
       p.tocar_envido(p.manojo(self.jid))
@@ -709,7 +709,7 @@ class CantarFlor(IJugada):
         jid = p.ronda.envite.sin_cantar[0]
         # j = p.Ronda.Manojo(jid)
         siguienteJugada = CantarFlor(jid)
-        res = siguienteJugada.Hacer(p)
+        res = siguienteJugada.hacer(p)
         pkts += res
     
     return pkts   
