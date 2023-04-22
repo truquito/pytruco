@@ -746,7 +746,10 @@ class Partida():
       ]
 
     # crea el mapping MIXS: str -> int
-    p.ronda.MIXS = d["ronda"]["mixs"]
+    if d["ronda"].get("mixs") is not None:
+      p.ronda.MIXS = d["ronda"]["mixs"]
+    else:
+      p.ronda.indexar_manojos()
 
     # carga muestras
     p.ronda.muestra = Carta(
