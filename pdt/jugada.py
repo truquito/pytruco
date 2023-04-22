@@ -1374,7 +1374,7 @@ class ResponderNoQuiero(IJugada):
         return pkts, False
     elif laFlorEsRespondible:
       # tengo que verificar si efectivamente tiene flor
-      tieneFlor = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
+      tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
       esDelEquipoContrario = p.manojo(self.jid).jugador.equipo != p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo
       ok = tieneFlor and esDelEquipoContrario
       if not ok:
