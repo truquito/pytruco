@@ -1,6 +1,6 @@
 from enum import Enum
 
-class Razon(Enum):
+class Razon(str, Enum):
   ENVIDO_GANADO              = "EnvidoGanado"
   REALENVIDO_GANADO          = "RealEnvidoGanado"
   FALTA_ENVIDO_GANADO        = "FaltaEnvidoGanado"

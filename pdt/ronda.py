@@ -616,7 +616,7 @@ class Ronda():
     self.el_mano = elMano
     self.turno = elMano
     self.envite = Envite()
-    self.turno = Truco()
+    self.truco = Truco()
     self.manos = [Mano() for _ in range(3)]
 
     for m in self.manojos:

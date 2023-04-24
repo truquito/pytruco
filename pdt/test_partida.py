@@ -1846,3 +1846,34 @@ def test_json_parse():
   p = Partida.parse(json_go)
   assert p.ronda.manos[0].resultado == Resultado.GANO_ROJO
   print(p.to_json())
+
+def test_fix_slice():
+  p = Partida.parse('{"puntuacion": 20, "puntajes": {"Azul": 0, "Rojo": 0}, "ronda": {"manoEnJuego": 0, "cantJugadoresEnJuego": {"Rojo": 1, "Azul": 1}, "elMano": 0, "turno": 0, "envite": {"estado": "noCantadoAun", "puntaje": 0, "cantadoPor": "", "sinCantar": []}, "truco": {"cantadoPor": "", "estado": "noCantado"}, "manojos": [{"seFueAlMazo": false, "cartas": [{"palo": "Oro", "valor": 1}, {"palo": "Oro", "valor": 6}, {"palo": "Espada", "valor": 12}], "tiradas": [false, false, false], "ultimaTirada": -1, "jugador": {"id": "Alice", "equipo": "Azul"}}, {"seFueAlMazo": false, "cartas": [{"palo": "Copa", "valor": 4}, {"palo": "Basto", "valor": 10}, {"palo": "Basto", "valor": 2}], "tiradas": [false, false, false], "ultimaTirada": -1, "jugador": {"id": "Bob", "equipo": "Rojo"}}], "mixs": {"Alice": 0, "Bob": 1}, "muestra": {"palo": "Oro", "valor": 5}, "manos": [{"resultado": "ganoRojo", "ganador": "", "cartasTiradas": null}, {"resultado": "ganoRojo", "ganador": "", "cartasTiradas": null}, {"resultado": "ganoRojo", "ganador": "", "cartasTiradas": null}]}}')
+  print(p)
+  print(p.to_json())
+
+  # while True:
+  #   cmd = input("<< ")
+  #   try:
+  #     pkts = p.cmd(cmd)
+  #     print(p)
+  #     for i, pkt in enumerate(pkts): print(f"pkt#{i}", pkt)
+  #   except Exception as e: print(e)
+  #   if p.terminada(): break;
+
+  cmds = ["alice 1 oro",
+  "bob 4 copa",
+  "alice envido",
+  "alice truco",
+  "bob quiero",
+  "alice 6 oro",
+  "bob 10 basto",
+  "bob re-truco",
+  "alice quiero",
+  "bob 2 basto",
+  "alice 12 espada"]
+
+  for c in cmds:
+    pkts = p.cmd(c)
+    print(p)
+    # for i, pkt in enumerate(pkts): print(f"pkt#{i}", pkt)

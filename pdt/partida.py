@@ -684,7 +684,7 @@ class Partida():
 
     # checkeo semantico
     jugada = self.parse_jugada(cmd)
-    jugada.hacer(self)
+    pkts += jugada.hacer(self)
 
     if self.terminada():
       pkts += self.byeBye()
@@ -707,7 +707,7 @@ class Partida():
       "ronda": self.ronda.to_dict()
     }
 
-  def to_json(self) -> any:
+  def to_json(self) -> str:
     d = self.to_dict()
     return json.dumps(d)
 
