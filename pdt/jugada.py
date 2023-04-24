@@ -1510,7 +1510,7 @@ class ResponderNoQuiero(IJugada):
           # ahora se deberia de incrementar el mano
           # y ser el turno de este
           sigMano = p.ronda.get_sig_el_mano()
-          p.nuevaRonda(sigMano) # todo: el tema es que cuando llama aca
+          p.nueva_ronda(sigMano) # todo: el tema es que cuando llama aca
           # no manda mensaje de que arranco nueva ronda
           # falso: el padre que llama a .EvaluarRonda tiene que fijarse si
           # retorno true
@@ -1627,7 +1627,8 @@ class IrseAlMazo(IJugada):
     tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
     if tieneFlor:
       p.ronda.envite.juegadores_con_flor = [
-        m for m in p.ronda.envite.juegadores_con_flor if m.jugador.id != p.manojo(self.jid)
+        m for m in p.ronda.envite.juegadores_con_flor \
+          if m.jugador.id != p.manojo(self.jid).jugador.id
       ]
       
       p.ronda.envite.canto_flor(p.manojo(self.jid).jugador.id)

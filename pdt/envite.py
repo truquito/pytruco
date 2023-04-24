@@ -67,11 +67,11 @@ class Envite():
   def no_canto_flor_aun(self, j:str) -> bool:
     return j in self.sin_cantar
   
-  """Elimina a `j` de los jugadores que tienen pendiente cantar flor
-  PRE:`j` se encuentra en la lista `sin_cantar`"""
+  """Elimina a `j` de los jugadores que tienen pendiente cantar flor"""
   def canto_flor(self, j:str):
     # ix = self.sin_cantar.index(j)
     # del self.sin_cantar[ix]
-    self.sin_cantar.remove(j)
+    if j in self.sin_cantar:
+      self.sin_cantar.remove(j)
 
     

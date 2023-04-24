@@ -209,6 +209,20 @@ class Partida():
     tirada = CartaTirada(manojo.jugador.id, carta)
     self.ronda.get_mano_actual().agregar_tirada(tirada)
 
+  def abandono(self,jugador:str) -> list[Packet]:
+    # encuentra al jugador
+    manojo = self.manojo(jugador)
+    # doy por ganador al equipo contrario
+    equipoContrario = manojo.jugador.GetEquipoContrario()
+    ptsFaltantes = self.puntuacion - self.puntajes[equipoContrario]
+    self.suma_puntos(equipoContrario, ptsFaltantes)
+    return [Packet(
+      ["ALL"],
+      Message(
+        CodMsg.ABANDONO,
+        data=manojo.jugador.id)
+    )]
+
   """EvaluarRonda tener siempre en cuenta que evaluar la ronda es sinonimo de
   evaluar el truco
   se acabo la ronda?
@@ -779,9 +793,9 @@ class Partida():
 
     return p
 
-
-    
-
+""" Abandono da por ganada la partida al equipo contario """
+def abandono(jugador:str, p:Partida) -> list[Packet]:   
+  return p.abandono(jugador)
 
 
 
