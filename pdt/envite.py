@@ -60,7 +60,7 @@ class Envite():
   def __init__(self):
     self.estado              :EstadoEnvite = EstadoEnvite.NOCANTADOAUN
     self.puntaje             :int          = 0
-    self.cantado_por         :str          = None
+    self.cantado_por         :str          = ""
     self.juegadores_con_flor :list[Manojo] = None
     self.sin_cantar          :list[str]    = None # sin cantar "la flor"
   

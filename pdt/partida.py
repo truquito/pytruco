@@ -730,13 +730,15 @@ class Partida():
     p.ronda.turno = int(d["ronda"]["turno"])
     
     # carga Envite
-    p.ronda.envite.cantado_por = d["ronda"]["envite"]["cantadoPor"]
+    c = d["ronda"]["envite"]["cantadoPor"]
+    p.ronda.envite.cantado_por = c if c is not None else ""
     p.ronda.envite.puntaje = int(d["ronda"]["envite"]["puntaje"])
     p.ronda.envite.estado = EstadoEnvite.parse(d["ronda"]["envite"]["estado"])
     p.ronda.envite.sin_cantar = d["ronda"]["envite"]["sinCantar"]
     
     # carga Truco
-    p.ronda.truco.cantado_por = d["ronda"]["truco"]["cantadoPor"]
+    c = d["ronda"]["truco"]["cantadoPor"]
+    p.ronda.truco.cantado_por = c if c is not None else ""
     p.ronda.truco.estado = EstadoTruco.parse(d["ronda"]["truco"]["estado"])
 
     # crea manojos linkeados a los jugadores
