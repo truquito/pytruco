@@ -1,12 +1,11 @@
 import pytest
-from .carta import Carta, Palo
-from .jugador import Jugador
+from .carta import Carta
 from .equipo import Equipo
-from .manojo import Manojo
-from .partida import Partida, abandono
+from .partida import Partida
 from .envite import EstadoEnvite
 from .truco import EstadoTruco
 from .mano import NumMano, Resultado
+from .printer import renderizar
 
 def test_envido_quiero():
   p = Partida(20, ["Alice"], ["Bob"])
@@ -508,7 +507,7 @@ def test_flor_flor_contra_flor_quiero():
     [ Carta(10, "Oro"), Carta(2, "Oro"), Carta(1, "Basto") ], # Richard tiene flor
   ])
 
-  # print(p)
+  print(renderizar(p))
 
   p.cmd("Alvaro Flor")
   p.cmd("Roro Mazo")
@@ -1811,6 +1810,9 @@ def test_fix_tester2():
   # simulacro de un jugador abandonando
   data = '{"puntuacion":30,"puntajes":{"Azul":27,"Rojo":23},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":2,"Rojo":2},"elMano":2,"turno":3,"pies":[0,0],"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":["Alvaro"]},"truco":{"cantadoPor":null,"estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":12},{"palo":"Basto","valor":5},{"palo":"Basto","valor":12}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alvaro","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":3},{"palo":"Espada","valor":1},{"palo":"Oro","valor":7}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Roro","equipo":"Rojo"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":6},{"palo":"Copa","valor":7},{"palo":"Espada","valor":12}],"tiradas":[false,true,false],"ultimaTirada":1,"jugador":{"id":"Adolfo","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Copa","valor":3},{"palo":"Copa","valor":12},{"palo":"Basto","valor":3}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Renzo","equipo":"Rojo"}}],"muestra":{"palo":"Oro","valor":5},"manos":[{"resultado":"ganoRojo","ganador":"","cartasTiradas":[{"jugador":"Adolfo","carta":{"palo":"Copa","valor":7}}]},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null}]}}'
   p = Partida.parse(data)
+
+  from .printer import renderizar
+  print(renderizar(p))
 
   p.cmd("Adolfo no-quiero")
   p.cmd("Adolfo 7 Copa")
