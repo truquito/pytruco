@@ -51,6 +51,10 @@ class Partida():
     }
 
     self.ronda = Ronda(azules, rojos, dummy)
+  
+  def __str__(self) -> str:
+    from .printer import renderizar
+    return renderizar(self)
 
   """
   

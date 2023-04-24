@@ -9,4 +9,4 @@ from pdt.mano import NumMano, Resultado
 from pdt.printer import renderizar
 
 p = Partida(20, ["Alice"], ["Bob"])
-print(renderizar(p))
+print(p)
