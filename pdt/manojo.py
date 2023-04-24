@@ -20,13 +20,13 @@ class Manojo():
   def __repr__(self) -> str:
     return str(self)
   
-  def __dict__(self) -> Dict[str, any]:
+  def to_dict(self) -> Dict[str, any]:
     return {
-      "se_fue_al_mazo": self.se_fue_al_mazo,
-      "cartas": [c.__dict__() for c in self.cartas],
+      "seFueAlMazo": self.se_fue_al_mazo,
+      "cartas": [c.to_dict() for c in self.cartas],
       "tiradas": self.tiradas,
-      "ultima_tirada": self.ultima_tirada,
-      "jugador": self.jugador.__dict__(),
+      "ultimaTirada": self.ultima_tirada,
+      "jugador": self.jugador.to_dict(),
     }
   
   def get_cant_cartas_tiradas(self) -> int:

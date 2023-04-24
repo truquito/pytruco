@@ -1833,3 +1833,16 @@ def test_fix_flor_no_cantada():
   # aa = pdt.Chi(p.Partida, roro) # ?????????????
   # p.cmd("Roro 4 Basto")
 
+def test_json_parse():
+  # caso 1
+  # json_go = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":1,"Rojo":1},"elMano":0,"turno":0,"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":[]},"truco":{"cantadoPor":"","estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":1},{"palo":"Copa","valor":10},{"palo":"Basto","valor":4}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alice","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":11},{"palo":"Basto","valor":10},{"palo":"Espada","valor":5}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Bob","equipo":"Rojo"}}],"mixs":{"Alice":0,"Bob":1},"muestra":{"palo":"Basto","valor":2},"manos":[{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null}]}}'
+  # p = Partida.parse(json_go)
+  # assert p.ronda.manos[0].resultado == Resultado.GANO_ROJO
+  # print(p.to_json())
+  # json_py = '{"puntuacion": 20, "puntajes": {"azul": 0, "rojo": 0}, "ronda": {"manoEnJuego": 0, "cantJugadoresEnJuego": {"rojo": 1, "azul": 1}, "elMano": 0, "turno": 0, "envite": {"estado": "noCantadoAun", "puntaje": 0, "cantadoPor": "", "sinCantar": []}, "truco": {"cantadoPor": "", "estado": "noCantado"}, "manojos": [{"seFueAlMazo": false, "cartas": [{"valor": 1, "palo": "oro"}, {"valor": 10, "palo": "copa"}, {"valor": 4, "palo": "basto"}], "tiradas": [false, false, false], "ultimaTirada": 0, "jugador": {"id": "Alice", "equipo": "azul"}}, {"seFueAlMazo": false, "cartas": [{"valor": 11, "palo": "oro"}, {"valor": 10, "palo": "basto"}, {"valor": 5, "palo": "espada"}], "tiradas": [false, false, false], "ultimaTirada": 0, "jugador": {"id": "Bob", "equipo": "rojo"}}], "mixs": {"Alice": 0, "Bob": 1}, "manos": [{"resultado": "empardada", "ganador": "", "cartasTiradas": []}, {"resultado": "empardada", "ganador": "", "cartasTiradas": []}, {"resultado": "empardada", "ganador": "", "cartasTiradas": []}], "muestra": {"valor": 2, "palo": "basto"}}}'
+
+  # caso 2
+  json_go = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":0},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":1,"Rojo":1},"elMano":0,"turno":0,"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":[]},"truco":{"cantadoPor":"","estado":"noCantado"},"manojos":[{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":1},{"palo":"Copa","valor":10},{"palo":"Basto","valor":4}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Alice","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Oro","valor":11},{"palo":"Basto","valor":10},{"palo":"Espada","valor":5}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"Bob","equipo":"Rojo"}}],"mixs":{"Alice":0,"Bob":1},"muestra":{"palo":"Basto","valor":2},"manos":[{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null}]}}'
+  p = Partida.parse(json_go)
+  assert p.ronda.manos[0].resultado == Resultado.GANO_ROJO
+  print(p.to_json())

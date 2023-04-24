@@ -1,6 +1,6 @@
 from __future__ import annotations
+from typing import Dict
 from enum import Enum
-from .jugador import Jugador
 
 class EstadoTruco(Enum):
 
@@ -58,5 +58,11 @@ class Truco():
   def __init__(self):
     self.cantado_por :str         = ""
     self.estado      :EstadoTruco = EstadoTruco.NOCANTADO
+  
+  def to_dict(self) -> Dict[str, any]:
+    return {
+      "cantadoPor": self.cantado_por,
+      "estado": str(self.estado),
+    }
 
     

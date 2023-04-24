@@ -11,11 +11,12 @@ class Jugador():
     self.id     = id
     self.equipo = equipo
   
-  def __dict__(self) -> Dict[str, any]:
+  def to_dict(self) -> Dict[str, any]:
     return {
       "id": self.id,
-      "equipo": str(self.equipo),
+      "equipo": str(self.equipo).capitalize(),
     }
+  
   def __str__(self) -> str:
     return f"{self.id}"
 

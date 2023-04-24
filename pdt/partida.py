@@ -697,15 +697,18 @@ class Partida():
   
   """
 
-  def __dict__(self) -> dict[str, any]:
+  def to_dict(self) -> dict[str, any]:
     return {
       "puntuacion": self.puntuacion,
-      "puntajes": {str(e): pts for e, pts in self.puntajes.items()},
-      "ronda": self.ronda.__dict__()
+      "puntajes": {
+        str(e).capitalize(): pts \
+        for e, pts in self.puntajes.items()
+      },
+      "ronda": self.ronda.to_dict()
     }
 
   def to_json(self) -> any:
-    d = self.__dict__()
+    d = self.to_dict()
     return json.dumps(d)
 
   @staticmethod

@@ -76,10 +76,10 @@ class Carta():
     self.palo  = palo
     self.valor = valor
   
-  def __dict__(self) -> Dict[str, any]:
+  def to_dict(self) -> Dict[str, any]:
     return {
+      "palo": str(self.palo).capitalize(),
       "valor": self.valor,
-      "palo": str(self.palo),
     }
   
   def __str__(self) -> str:

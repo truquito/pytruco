@@ -66,13 +66,13 @@ class Envite():
     self.juegadores_con_flor :list[Manojo] = None
     self.sin_cantar          :list[str]    = None # sin cantar "la flor"
   
-  def __dict__(self) -> Dict[str, any]:
+  def to_dict(self) -> Dict[str, any]:
     return {
       "estado": str(self.estado),
       "puntaje": self.puntaje,
-      "cantado_por": self.cantado_por,
+      "cantadoPor": self.cantado_por,
       # "juegadores_con_flor": self.juegadores_con_flor,
-      "sin_cantar": self.sin_cantar,
+      "sinCantar": self.sin_cantar,
     }
 
   def no_canto_flor_aun(self, j:str) -> bool:

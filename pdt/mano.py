@@ -15,6 +15,9 @@ class Resultado(Enum):
   def __repr__(self) -> str:
     return str(self)
   
+  def __eq__(self, other) -> bool:
+    return str(self) == str(other)
+  
   def parse(r:str) -> Resultado:
     if r not in map(lambda x: str(x), 
       [Resultado.GANO_ROJO,Resultado.GANO_AZUL,Resultado.EMPARDADA]):
@@ -84,25 +87,32 @@ class NumMano(Enum):
       else NumMano.TERCERA
 
 class CartaTirada():
-  def __init__(self, jugador:str, carta:Carta):
+  def __init__(self, jugador:str, carta:Carta) -> None:
     self.jugador :str   = jugador
     self.carta   :Carta = carta
+  
+  def to_dict(self) -> Dict[str, any]:
+    return {
+      "jugador": self.jugador,
+      "carta": self.carta.to_dict(),
+    }
 
 class Mano():
-  def __init__(self):
+  def __init__(self) -> None:
     self.resultado      :Resultado         = None
     self.ganador        :str               = ""
     self.cartas_tiradas :list[CartaTirada] = []
 
-  def __dict__(self) -> Dict[str, any]:
+  def to_dict(self) -> Dict[str, any]:
     return {
       "resultado": str(self.resultado) if self.resultado is not None 
               else str(Resultado.GANO_ROJO),
       "ganador": self.ganador,
-      "cartas_tiradas": self.cartas_tiradas,
+      "cartasTiradas": [t.to_dict() for t in self.cartas_tiradas] \
+        if len(self.cartas_tiradas) else None,
     } 
   
-  def agregar_tirada(self, c:CartaTirada):
+  def agregar_tirada(self, c:CartaTirada) -> None:
     self.cartas_tiradas += [c]
   
   

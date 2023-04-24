@@ -75,19 +75,20 @@ class Ronda():
     self.repartir_cartas()
     self.cachear_flores(reset=True)
   
-  def __dict__(self) -> Dict[str, any]:
+  def to_dict(self) -> Dict[str, any]:
     return {
-      "mano_en_juego": str(self.mano_en_juego),
-      "cant_jugadores_en_juego": {str(e):v \
-                              for e,v in self.cant_jugadores_en_juego.items()},
-      "el_mano": self.el_mano,
+      "manoEnJuego": self.mano_en_juego.to_ix(),
+      "cantJugadoresEnJuego": {
+        str(e).capitalize(): v \
+        for e,v in self.cant_jugadores_en_juego.items()},
+      "elMano": self.el_mano,
       "turno": self.turno,
-      "envite": self.envite.__dict__(),
-      "truco": self.envite.__dict__(),
-      "manojos": [m.__dict__() for m in self.manojos],
+      "envite": self.envite.to_dict(),
+      "truco": self.truco.to_dict(),
+      "manojos": [m.to_dict() for m in self.manojos],
       "mixs": self.MIXS,
-      "manos": [m.__dict__() for m in self.manos],
-      "muestra": self.muestra.__dict__(),
+      "muestra": self.muestra.to_dict(),
+      "manos": [m.to_dict() for m in self.manos],
     }
   
   # GETTERS
