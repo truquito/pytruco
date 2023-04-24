@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import Dict
+
 from .mano import NumMano
 from .carta import Carta, get_cartas_random
 from .equipo import Equipo
@@ -73,7 +74,21 @@ class Ronda():
   
     self.repartir_cartas()
     self.cachear_flores(reset=True)
-    
+  
+  def __dict__(self) -> Dict[str, any]:
+    return {
+      "mano_en_juego": str(self.mano_en_juego),
+      "cant_jugadores_en_juego": {str(e):v \
+                              for e,v in self.cant_jugadores_en_juego.items()},
+      "el_mano": self.el_mano,
+      "turno": self.turno,
+      "envite": self.envite.__dict__(),
+      "truco": self.envite.__dict__(),
+      "manojos": [m.__dict__() for m in self.manojos],
+      "mixs": self.MIXS,
+      "manos": [m.__dict__() for m in self.manos],
+      "muestra": self.muestra.__dict__(),
+    }
   
   # GETTERS
 

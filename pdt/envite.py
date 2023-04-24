@@ -1,4 +1,6 @@
 from __future__ import annotations
+from typing import Dict
+
 # from pdt import equipo
 from enum import Enum
 from .jugador import Jugador
@@ -64,6 +66,15 @@ class Envite():
     self.juegadores_con_flor :list[Manojo] = None
     self.sin_cantar          :list[str]    = None # sin cantar "la flor"
   
+  def __dict__(self) -> Dict[str, any]:
+    return {
+      "estado": str(self.estado),
+      "puntaje": self.puntaje,
+      "cantado_por": self.cantado_por,
+      # "juegadores_con_flor": self.juegadores_con_flor,
+      "sin_cantar": self.sin_cantar,
+    }
+
   def no_canto_flor_aun(self, j:str) -> bool:
     return j in self.sin_cantar
   

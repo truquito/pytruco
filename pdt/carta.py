@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Dict
 from enum import Enum
 # from typing import Self
 
@@ -74,6 +75,12 @@ class Carta():
      
     self.palo  = palo
     self.valor = valor
+  
+  def __dict__(self) -> Dict[str, any]:
+    return {
+      "valor": self.valor,
+      "palo": str(self.palo),
+    }
   
   def __str__(self) -> str:
     return f"{self.valor} de {self.palo}"

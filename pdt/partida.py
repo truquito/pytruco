@@ -697,8 +697,16 @@ class Partida():
   
   """
 
+  def __dict__(self) -> dict[str, any]:
+    return {
+      "puntuacion": self.puntuacion,
+      "puntajes": {str(e): pts for e, pts in self.puntajes.items()},
+      "ronda": self.ronda.__dict__()
+    }
+
   def to_json(self) -> any:
-    pass
+    d = self.__dict__()
+    return json.dumps(d)
 
   @staticmethod
   def parse(data:str) -> Partida:

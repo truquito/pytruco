@@ -10,3 +10,4 @@ from pdt.printer import renderizar
 
 p = Partida(20, ["Alice"], ["Bob"])
 print(p)
+print(p.to_json())

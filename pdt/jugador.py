@@ -1,3 +1,5 @@
+from typing import Dict
+
 # from pdt import equipo
 from .equipo import Equipo
 
@@ -9,6 +11,11 @@ class Jugador():
     self.id     = id
     self.equipo = equipo
   
+  def __dict__(self) -> Dict[str, any]:
+    return {
+      "id": self.id,
+      "equipo": str(self.equipo),
+    }
   def __str__(self) -> str:
     return f"{self.id}"
 

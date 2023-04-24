@@ -1,3 +1,5 @@
+from typing import Dict
+
 # from pdt import equipo
 from .jugador import Jugador
 from .mano import NumMano
@@ -17,6 +19,15 @@ class Manojo():
 
   def __repr__(self) -> str:
     return str(self)
+  
+  def __dict__(self) -> Dict[str, any]:
+    return {
+      "se_fue_al_mazo": self.se_fue_al_mazo,
+      "cartas": [c.__dict__() for c in self.cartas],
+      "tiradas": self.tiradas,
+      "ultima_tirada": self.ultima_tirada,
+      "jugador": self.jugador.__dict__(),
+    }
   
   def get_cant_cartas_tiradas(self) -> int:
     return sum(self.tiradas)

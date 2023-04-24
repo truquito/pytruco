@@ -1,5 +1,7 @@
 from __future__ import annotations
+from typing import Dict
 from enum import Enum
+
 from .carta import Carta
 
 class Resultado(Enum):
@@ -91,6 +93,14 @@ class Mano():
     self.resultado      :Resultado         = None
     self.ganador        :str               = ""
     self.cartas_tiradas :list[CartaTirada] = []
+
+  def __dict__(self) -> Dict[str, any]:
+    return {
+      "resultado": str(self.resultado) if self.resultado is not None 
+              else str(Resultado.GANO_ROJO),
+      "ganador": self.ganador,
+      "cartas_tiradas": self.cartas_tiradas,
+    } 
   
   def agregar_tirada(self, c:CartaTirada):
     self.cartas_tiradas += [c]
