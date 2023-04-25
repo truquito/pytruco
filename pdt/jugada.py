@@ -20,7 +20,7 @@ class TirarCarta(IJugada):
     return IJUGADA_ID.JID_TIRAR_CARTA
   
   def __str__(self) -> str:
-    return f"{self.jid} {self.carta}"
+    return f"{self.jid} {self.carta.valor} {self.carta.palo}"
 
   # Retorna true si la jugada es valida
   def ok(self,p:Partida) -> tuple[list[Packet], bool]:
