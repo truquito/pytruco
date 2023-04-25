@@ -33,7 +33,16 @@ class IJugada():
     return str(self)
   
 class Partida():
-  def __init__(self, puntuacion:int, azules:list[str], rojos:list[str], dummy=False):
+  def __init__(
+      self,
+      puntuacion:int,
+      azules:list[str],
+      rojos:list[str],
+      dummy=False,
+      verbose=True,
+    ):
+    self.verbose = verbose
+
     if puntuacion not in [20,30,40]:
       raise Exception("el valor de la partida no es valido")
 
@@ -225,7 +234,7 @@ class Partida():
       Message(
         CodMsg.ABANDONO,
         data=manojo.jugador.id)
-    )]
+    )] if self.verbose else []
 
   """EvaluarRonda tener siempre en cuenta que evaluar la ronda es sinonimo de
   evaluar el truco
@@ -395,7 +404,7 @@ class Partida():
             "autor": ganador,
             "razon": Razon.SE_FUERON_AL_MAZO
           })
-      )]
+      )] if self.verbose else []
 
     elif elTrucoNoTuvoRespuesta:
 
@@ -418,7 +427,7 @@ class Partida():
             "autor": ganador,
             "razon": razon
           })
-      )]
+      )] if self.verbose else []
 
     else:
 
@@ -440,7 +449,7 @@ class Partida():
             "autor": ganador,
             "razon": razon
           })
-      )]
+      )] if self.verbose else []
 
     self.suma_puntos(self.ronda.manojo(ganador).jugador.equipo, totalPts)
 
@@ -453,7 +462,7 @@ class Partida():
           "razon": Razon.TRUCO_QUERIDO,
           "valor": totalPts
         })
-    )]
+    )] if self.verbose else []
 
     return True, pkts # porque se empezo una nueva ronda
 
@@ -525,7 +534,7 @@ class Partida():
         Message(
           CodMsg.LA_MANO_RESULTA_PARDA,
           data=None)
-      )]
+      )] if self.verbose else []
 
       # no se cambia el turno
 
@@ -569,7 +578,7 @@ class Partida():
           "autor": mano.ganador,
           "valor": self.ronda.mano_en_juego # ?????? <-- en go devuelve `mano_en_juego - 1`
           })
-      )]
+      )] if self.verbose else []
 
     # se termino la ronda?
     empiezaNuevaRonda, pkt2 = self.evaluar_ronda()
@@ -629,7 +638,7 @@ class Partida():
         Message(
           CodMsg.BYEBYE,
           data=s)
-      )]    
+      )] if self.verbose else []
 
     return pkts
   

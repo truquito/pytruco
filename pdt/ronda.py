@@ -314,7 +314,7 @@ class Ronda():
     `pkts[2] = Pedro dice: "30 son mejores!"`
   	`pkts[3] = Juan dice: "33 son mejores!"`
   """
-  def exec_el_envido(self) -> tuple[int, int, list[Packet]]:
+  def exec_el_envido(self, verbose=True) -> tuple[int, int, list[Packet]]:
     pkts :list[Packet] = []
     
     cant_jugadores = len(self.manojos)
@@ -350,7 +350,7 @@ class Ronda():
           "autor": self.manojos[jIdx].jugador.id,
           "valor": envidos[jIdx]
         })
-    )]
+    )] if verbose else []
     
     # `todaviaNoDijeronSonMejores` se usa para
     # no andar repitiendo "son bueanas" "son buenas"
@@ -388,7 +388,7 @@ class Ronda():
                   "autor": self.manojos[i].jugador.id,
                   "valor": envidos[i]
                 })
-            )]
+            )] if verbose else []
 
             jIdx = i
             ya_dijeron[i] = True
@@ -414,7 +414,7 @@ class Ronda():
                     "autor": self.manojos[i].jugador.id,
                     # valor de su envido es `envidos[i]` pero no corresponde decirlo
                   })
-              )]
+              )] if verbose else []
 
               ya_dijeron[i] = True
               # pasa al siguiente
@@ -451,7 +451,7 @@ class Ronda():
     `pkts[2] = Pedro dice: "30 son mejores!"`
     `pkts[3] = Juan dice: "33 son mejores!"`
   """
-  def exec_las_flores(self, aPartirDe:int) -> tuple[Manojo, int, list[Packet]]:
+  def exec_las_flores(self, aPartirDe:int, verbose=True) -> tuple[Manojo, int, list[Packet]]:
     pkts:list[Packet] = []
 
     # si solo un equipo tiene flor, entonces se saltea esta parte
@@ -495,7 +495,7 @@ class Ronda():
             "autor": self.manojos[aPartirDe].jugador.id,
             "valor": flores[aPartirDe],
           })
-      )]
+      )] if verbose else []
 
     # `todaviaNoDijeronSonMejores` se usa para
     # no andar repitiendo "son bueanas" "son buenas"
@@ -531,7 +531,7 @@ class Ronda():
                   "autor": self.manojos[i].jugador.id,
                   "valor": flores[i],
                 })
-            )]
+            )] if verbose else []
 
             jIdx = i
             yaDijeron[i] = True
@@ -556,7 +556,7 @@ class Ronda():
                     "autor": self.manojos[i].jugador.id,
                     # valor de su envido es `flores[i]` pero no corresponde decirlo
                   })
-              )]
+              )] if verbose else []
 
               yaDijeron[i] = True
               # pasa al siguiente

@@ -34,7 +34,7 @@ class TirarCarta(IJugada):
         Message(
           CodMsg.ERROR,
           data="No es posible tirar una carta porque ya te fuiste al mazo")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     # esto es un tanto redundante porque es imposible que no sea su turno
@@ -47,7 +47,7 @@ class TirarCarta(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible tirar una carta porque ya las tiraste todas")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     # checkeo flor en juego
@@ -58,7 +58,7 @@ class TirarCarta(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible tirar una carta ahora porque el envite esta en juego")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     # primero que nada: tiene esa carta?
@@ -69,7 +69,7 @@ class TirarCarta(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No tienes esa carta en tu manojo")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     # ya jugo esa carta?
@@ -80,7 +80,7 @@ class TirarCarta(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="Ya tiraste esa carta")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     # luego, era su turno?
@@ -91,7 +91,7 @@ class TirarCarta(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No era su turno, no puede tirar la carta")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     # checkeo si tiene flor
@@ -107,7 +107,7 @@ class TirarCarta(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible tirar una carta sin antes cantar la flor")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     # cambio: ahora no puede tirar carta si el grito truco
@@ -122,7 +122,7 @@ class TirarCarta(IJugada):
           CodMsg.ERROR,
           data="No es posible tirar una carta porque tu equipo debe responder \
             la propuesta del truco")
-      )]
+      )] if p.verbose else []
       return pkts, False
 
     return pkts, True   
@@ -144,7 +144,7 @@ class TirarCarta(IJugada):
             "autor": p.manojo(self.jid).jugador.id,
             "palo": str(self.carta.palo),
             "valor": self.carta.valor })
-      )]
+      )] if p.verbose else []
 
     idx = p.manojo(self.jid).get_carta_idx(self.carta)
 
@@ -176,7 +176,7 @@ class TirarCarta(IJugada):
             CodMsg.SIG_TURNO_POSMANO,
             data={
               "valor": p.ronda.turno })
-        )]
+        )] if p.verbose else []
 
       else:
         if not p.terminada():
@@ -199,7 +199,7 @@ class TirarCarta(IJugada):
               m=Message(
                 CodMsg.NUEVA_RONDA,
                 data=p.perspectiva(m.jugador.id))
-            ) for m in p.ronda.manojos ]
+            ) for m in p.ronda.manojos ] if p.verbose else []
 
       # el turno del siguiente queda dado por el ganador de esta
     else:
@@ -209,7 +209,7 @@ class TirarCarta(IJugada):
           m=Message(
             CodMsg.SIG_TURNO,
             data=p.ronda.turno)
-        )]    
+        )] if p.verbose else []    
 
     return pkts
 
@@ -235,7 +235,7 @@ class TocarEnvido(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible tocar el envido ahora porque la flor esta en juego")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     seFueAlMazo = p.manojo(self.jid).se_fue_al_mazo
@@ -250,7 +250,7 @@ class TocarEnvido(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible tocar envido ahora")
-      )]
+      )] if p.verbose else []
 
       return pkts, False
     
@@ -274,7 +274,7 @@ class TocarEnvido(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible cantar 'Envido'")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     return pkts, True
@@ -300,14 +300,14 @@ class TocarEnvido(IJugada):
         m=Message(
           CodMsg.EL_ENVIDO_ESTA_PRIMERO,
           data=p.manojo(self.jid).jugador.id)
-      )]
+      )] if p.verbose else []
 
     pkts += [Packet(
       dest=["ALL"],
       m=Message(
         CodMsg.TOCAR_ENVIDO,
         data=p.manojo(self.jid).jugador.id)
-    )]
+    )] if p.verbose else []
 
     # ahora checkeo si alguien tiene flor
     hayFlor = len(p.ronda.envite.sin_cantar) > 0
@@ -337,9 +337,9 @@ class TocarEnvido(IJugada):
     pkts :list[Packet] = []
     p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
     p.ronda.envite.sin_cantar = []
-    jIdx, _, res = p.ronda.exec_el_envido()
+    jIdx, _, res = p.ronda.exec_el_envido(verbose=p.verbose)
 
-    pkts += res
+    pkts += res if p.verbose else []
     jug = p.ronda.manojos[jIdx].jugador
 
     pkts += [Packet(
@@ -351,7 +351,7 @@ class TocarEnvido(IJugada):
           "razon": Razon.ENVIDO_GANADO,
           "valor": p.ronda.envite.puntaje,
         })
-    )]
+    )] if p.verbose else []
 
     p.suma_puntos(jug.equipo, p.ronda.envite.puntaje)
     return pkts  
@@ -380,7 +380,7 @@ class TocarRealEnvido(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible tocar real envido ahora porque la flor esta en juego")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     seFueAlMazo = p.manojo(self.jid).se_fue_al_mazo
@@ -395,7 +395,7 @@ class TocarRealEnvido(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible tocar real-envido ahora")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     esDelEquipoContrario = p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN or \
@@ -416,7 +416,7 @@ class TocarRealEnvido(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible cantar 'Real Envido'")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     return pkts, True
@@ -443,14 +443,14 @@ class TocarRealEnvido(IJugada):
         m=Message(
           CodMsg.EL_ENVIDO_ESTA_PRIMERO,
           data=p.manojo(self.jid).jugador.id)
-      )]
+      )] if p.verbose else []
 
     pkts += [Packet(
       dest=["ALL"],
       m=Message(
         CodMsg.TOCAR_REALENVIDO,
         data=p.manojo(self.jid).jugador.id)
-    )]
+    )] if p.verbose else []
 
     p.tocar_real_envido(p.manojo(self.jid))
 
@@ -490,7 +490,7 @@ class TocarFaltaEnvido(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible tocar falta envido ahora porque la flor esta en juego")
-      )]
+      )] if p.verbose else []
       return pkts, False
 
     seFueAlMazo = p.manojo(self.jid).se_fue_al_mazo
@@ -506,7 +506,7 @@ class TocarFaltaEnvido(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible tocar real-envido ahora")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     esDelEquipoContrario = p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN or p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo != p.manojo(self.jid).jugador.equipo
@@ -526,7 +526,7 @@ class TocarFaltaEnvido(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible cantar 'Falta Envido'")
-      )]
+      )] if p.verbose else []
       return pkts, False
         
     return pkts, True
@@ -552,14 +552,14 @@ class TocarFaltaEnvido(IJugada):
         m=Message(
           CodMsg.EL_ENVIDO_ESTA_PRIMERO,
           data=p.manojo(self.jid).jugador.id)
-      )]
+      )] if p.verbose else []
 
     pkts += [Packet(
       dest=["ALL"],
       m=Message(
         CodMsg.TOCAR_FALTAENVIDO,
         data=p.manojo(self.jid).jugador.id)
-    )]
+    )] if p.verbose else []
 
     p.tocar_falta_envido(p.manojo(self.jid))
 
@@ -590,9 +590,9 @@ class TocarFaltaEnvido(IJugada):
     p.ronda.envite.sin_cantar = []
 
     # computar envidos
-    jIdx, _, res = p.ronda.exec_el_envido()
+    jIdx, _, res = p.ronda.exec_el_envido(verbose=p.verbose)
 
-    pkts += res
+    pkts += res if p.verbose else []
 
     # jug es el que gano el (falta) envido
     jug = p.ronda.manojos[jIdx].jugador
@@ -610,7 +610,7 @@ class TocarFaltaEnvido(IJugada):
           "razon": Razon.FALTA_ENVIDO_GANADO,
           "valor": p.ronda.envite.puntaje,
         })
-    )]
+    )] if p.verbose else []
 
     p.suma_puntos(jug.equipo, p.ronda.envite.puntaje)
 
@@ -653,7 +653,7 @@ class CantarFlor(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible cantar flor")
-      )]
+      )] if p.verbose else []
       return pkts, False
       
     return pkts, True
@@ -672,7 +672,7 @@ class CantarFlor(IJugada):
       Message(
         CodMsg.CANTAR_FLOR,
         data=p.manojo(self.jid).jugador.id)
-    )]
+    )] if p.verbose else []
 
     # corresponde que desactive el truco?
     # si lo desactivo: es medio tedioso para el usuario tener q volver a gritar
@@ -727,8 +727,8 @@ class CantarFlor(IJugada):
     # cual es la flor ganadora?
     # empieza cantando el autor del envite no el que "quizo"
     autorIdx = p.ronda.JIX(p.ronda.manojo(p.ronda.envite.cantado_por).jugador.id)
-    manojoConLaFlorMasAlta, _, res = p.ronda.exec_las_flores(autorIdx)
-    pkts += res
+    manojoConLaFlorMasAlta, _, res = p.ronda.exec_las_flores(autorIdx, verbose=p.verbose)
+    pkts += res if p.verbose else []
     equipoGanador = manojoConLaFlorMasAlta.jugador.equipo
 
     # que estaba en juego?
@@ -750,7 +750,7 @@ class CantarFlor(IJugada):
             "razon": Razon.LA_UNICA_FLOR,
             "valor": puntosASumar,
           })
-      )]
+      )] if p.verbose else []
     else:
       pkts += [Packet(
         dest=["ALL"],
@@ -761,7 +761,7 @@ class CantarFlor(IJugada):
             "razon": Razon.LA_FLOR_MASALTA,
             "valor": puntosASumar,
           })
-      )]
+      )] if p.verbose else []
 
     p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
     p.ronda.envite.sin_cantar = []
@@ -795,7 +795,7 @@ class CantarContraFlor(IJugada):
         Message(
           CodMsg.ERROR,
           data="No es posible cantar contra flor")
-      )]
+      )] if p.verbose else []
       return pkts, False
 
     return pkts, True
@@ -814,7 +814,7 @@ class CantarContraFlor(IJugada):
       Message(
         CodMsg.CANTAR_CONTRAFLOR,
         data=p.manojo(self.jid).jugador.id)
-    )]
+    )] if p.verbose else []
 
     p.cantar_contra_flor(p.manojo(self.jid))
     # y ahora tengo que esperar por la respuesta de la nueva
@@ -854,7 +854,7 @@ class CantarContraFlorAlResto(IJugada):
         Message(
           CodMsg.ERROR,
           data="No es posible cantar contra flor al resto")
-      )]
+      )] if p.verbose else []
       return pkts, False
         
     return pkts, True
@@ -873,7 +873,7 @@ class CantarContraFlorAlResto(IJugada):
       Message(
         CodMsg.CANTAR_CONTRAFLOR_AL_RESTO,
         data=p.manojo(self.jid).jugador.id)
-    )]
+    )] if p.verbose else []
 
     p.cantar_contra_flor_al_resto(p.manojo(self.jid))
     # y ahora tengo que esperar por la respuesta de la nueva
@@ -939,7 +939,7 @@ class GritarTruco(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible cantar truco ahora")
-      )]
+      )] if p.verbose else []
       return pkts, False
       
     return pkts, True
@@ -957,7 +957,7 @@ class GritarTruco(IJugada):
       m=Message(
         CodMsg.GRITAR_TRUCO,
         data=p.manojo(self.jid).jugador.id)
-    )]
+    )] if p.verbose else []
 
     p.gritar_truco(p.manojo(self.jid))
     return pkts
@@ -1009,7 +1009,7 @@ class GritarReTruco(IJugada):
         Message(
           CodMsg.ERROR,
           data="No es posible cantar re-truco ahora")
-      )]
+      )] if p.verbose else []
       return pkts, False
 
     return pkts, True
@@ -1027,7 +1027,7 @@ class GritarReTruco(IJugada):
       m=Message(
         CodMsg.GRITAR_RETRUCO,
         data=p.manojo(self.jid).jugador.id)
-    )]
+    )] if p.verbose else []
     p.gritar_retruco(p.manojo(self.jid))
     return pkts   
   
@@ -1080,7 +1080,7 @@ class GritarVale4(IJugada):
         Message(
           CodMsg.ERROR,
           data="No es posible cantar vale-4 ahora")
-      )]
+      )] if p.verbose else []
       return pkts, False
 
     return pkts, True
@@ -1098,7 +1098,7 @@ class GritarVale4(IJugada):
       m=Message(
         CodMsg.GRITAR_VALE4,
         data=p.manojo(self.jid).jugador.id)
-    )]
+    )] if p.verbose else []
     p.gritar_vale4(p.manojo(self.jid))
 
     return pkts   
@@ -1124,7 +1124,7 @@ class ResponderQuiero(IJugada):
         Message(
           CodMsg.ERROR,
           data="Te fuiste al mazo; no podes Hacer esta jugada")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     # checkeo flor en juego
@@ -1144,7 +1144,7 @@ class ResponderQuiero(IJugada):
         Message(
           CodMsg.ERROR,
           data="No es posible responder quiero ahora")
-      )]
+      )] if p.verbose else []
       return pkts, False
 
     noHanCantadoLaFlorAun = p.ronda.envite.estado < EstadoEnvite.FLOR
@@ -1155,7 +1155,7 @@ class ResponderQuiero(IJugada):
         Message(
           CodMsg.ERROR,
           data="No es posible responder 'quiero' porque alguien con flor no ha cantado aun")
-      )]
+      )] if p.verbose else []
       return pkts, False
     # se acepta una respuesta 'quiero' solo cuando:
     # - CASO I: se toco un envite+ (con autor del equipo contario)
@@ -1177,7 +1177,7 @@ class ResponderQuiero(IJugada):
           data='No hay nada "que querer"; ya que: el estado del envido no es \
             "envido" (o mayor) y el estado del truco no es "truco" (o mayor) o \
               bien fue cantado por uno de su equipo')
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     if elEnvidoEsRespondible:
@@ -1188,7 +1188,7 @@ class ResponderQuiero(IJugada):
           m=Message(
             CodMsg.ERROR,
             data="La jugada no es valida")
-        )]
+        )] if p.verbose else []
         return pkts, False
     elif laContraFlorEsRespondible:
       # tengo que verificar si efectivamente tiene flor
@@ -1201,7 +1201,7 @@ class ResponderQuiero(IJugada):
           m=Message(
             CodMsg.ERROR,
             data="La jugada no es valida")
-        )]
+        )] if p.verbose else []
         return pkts, False
     
     return pkts, True
@@ -1230,7 +1230,7 @@ class ResponderQuiero(IJugada):
         m=Message(
           CodMsg.QUIERO_ENVITE,
           data=p.manojo(self.jid).jugador.id)
-      )]
+      )] if p.verbose else []
 
       if p.ronda.envite.estado == EstadoEnvite.FALTAENVIDO:
         res = TocarFaltaEnvido(self.jid).eval(p)
@@ -1249,13 +1249,13 @@ class ResponderQuiero(IJugada):
         m=Message(
           CodMsg.QUIERO_ENVITE,
           data=p.manojo(self.jid).jugador.id)
-      )]
+      )] if p.verbose else []
         
       # empieza cantando el autor del envite no el que "quizo"
       autorIdx = p.ronda.JIX(p.ronda.manojo(p.ronda.envite.cantado_por).jugador.id)
-      manojoConLaFlorMasAlta, _, res = p.ronda.exec_las_flores(autorIdx)
+      manojoConLaFlorMasAlta, _, res = p.ronda.exec_las_flores(autorIdx, verbose=p.verbose)
 
-      pkts += res
+      pkts += res if p.verbose else []
 
       # manojoConLaFlorMasAlta, _ = p.Ronda.GetLaFlorMasAlta()
       equipoGanador = manojoConLaFlorMasAlta.jugador.equipo
@@ -1272,7 +1272,7 @@ class ResponderQuiero(IJugada):
               "razon": Razon.CONTRAFLOR_GANADA,
               "valor": puntosASumar,
             })
-        )]
+        )] if p.verbose else []
 
       else:
         # el equipo del ganador de la contraflor al resto
@@ -1290,7 +1290,7 @@ class ResponderQuiero(IJugada):
               "razon": Razon.CONTRAFLOR_AL_RESTO_GANADA,
               "valor": puntosASumar,
             })
-        )]
+        )] if p.verbose else []
 
       p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
       p.ronda.envite.sin_cantar = []
@@ -1301,7 +1301,7 @@ class ResponderQuiero(IJugada):
         m=Message(
           CodMsg.QUIERO_TRUCO,
           data=p.manojo(self.jid).jugador.id)
-      )]
+      )] if p.verbose else []
       p.querer_truco(p.manojo(self.jid))
 
     return pkts   
@@ -1327,7 +1327,7 @@ class ResponderNoQuiero(IJugada):
           m=Message(
             CodMsg.ERROR,
             data="Te fuiste al mazo; no podes Hacer esta jugada")
-        )]
+        )] if p.verbose else []
       return pkts, False
     
     # checkeo flor en juego
@@ -1359,7 +1359,7 @@ class ResponderNoQuiero(IJugada):
           m=Message(
             CodMsg.ERROR,
             data=f"{p.manojo(self.jid).jugador.id} esta respondiendo al pedo; no hay nada respondible")
-        )]
+        )] if p.verbose else []
       return pkts, False
     
     if elEnvidoEsRespondible:
@@ -1370,7 +1370,7 @@ class ResponderNoQuiero(IJugada):
             m=Message(
               CodMsg.ERROR,
               data=f"La jugada no es valida")
-          )]
+          )] if p.verbose else []
         return pkts, False
     elif laFlorEsRespondible:
       # tengo que verificar si efectivamente tiene flor
@@ -1383,7 +1383,7 @@ class ResponderNoQuiero(IJugada):
             m=Message(
               CodMsg.ERROR,
               data=f"La jugada no es valida")
-          )]
+          )] if p.verbose else []
         return pkts, False
 
     return pkts, True
@@ -1407,7 +1407,7 @@ class ResponderNoQuiero(IJugada):
         m=Message(
           CodMsg.NO_QUIERO,
           data=p.manojo(self.jid).jugador.id)
-      )]
+      )] if p.verbose else []
 
       # no se toma en cuenta el puntaje total del ultimo toque
       totalPts :int = 0
@@ -1432,7 +1432,7 @@ class ResponderNoQuiero(IJugada):
           "razon": Razon.ENVITE_NO_QUERIDO,
           "valor": totalPts,
         })
-      )]
+      )] if p.verbose else []
 
       p.suma_puntos(p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo, totalPts)
 
@@ -1444,7 +1444,7 @@ class ResponderNoQuiero(IJugada):
         m=Message(
           CodMsg.CON_FLOR_ME_ACHICO,
           data=p.manojo(self.jid).jugador.id)
-      )]
+      )] if p.verbose else []
 
       # cuenta como un "no quiero" (codigo copiado)
       # segun el estado de la apuesta actual:
@@ -1479,7 +1479,7 @@ class ResponderNoQuiero(IJugada):
           "razon": Razon.FLOR_ACHICADA,
           "valor": totalPts,
         })
-      )]
+      )] if p.verbose else []
 
       p.suma_puntos(p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo, totalPts)
 
@@ -1490,7 +1490,7 @@ class ResponderNoQuiero(IJugada):
         m=Message(
           CodMsg.NO_QUIERO,
           data=p.manojo(self.jid).jugador.id)
-      )]
+      )] if p.verbose else []
 
       # pongo al equipo que propuso el truco como ganador de la mano actual
       manoActual = p.ronda.mano_en_juego.to_ix()
@@ -1525,7 +1525,7 @@ class ResponderNoQuiero(IJugada):
               m=Message(
                 CodMsg.NUEVA_RONDA,
                 data=p.perspectiva(m.jugador.id))
-            ) for m in p.ronda.manojos ]    
+            ) for m in p.ronda.manojos ] if p.verbose else []    
     
     return pkts   
 
@@ -1552,7 +1552,7 @@ class IrseAlMazo(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible irse al mazo ahora")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     seEstabaJugandoElEnvido = (p.ronda.envite.estado >= EstadoEnvite.ENVIDO and p.ronda.envite.estado <= EstadoEnvite.FALTAENVIDO)
@@ -1573,7 +1573,7 @@ class IrseAlMazo(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible irse al mazo ahora")
-      )]
+      )] if p.verbose else []
       return pkts, False
     
     # por como esta hecho el algoritmo EvaluarMano:
@@ -1596,7 +1596,7 @@ class IrseAlMazo(IJugada):
         m=Message(
           CodMsg.ERROR,
           data="No es posible irse al mazo ahora")
-      )]
+      )] if p.verbose else []
       return pkts, False
       
     return pkts, True
@@ -1615,7 +1615,7 @@ class IrseAlMazo(IJugada):
           CodMsg.MAZO,
           data=p.manojo(self.jid).jugador.id
         )
-      )]
+      )] if p.verbose else []
     
     p.ir_al_mazo(p.manojo(self.jid))
 
@@ -1679,7 +1679,7 @@ class IrseAlMazo(IJugada):
             "razon": Razon.ENVITE_NO_QUERIDO,
             "valor": totalPts,
           })
-        )]
+        )] if p.verbose else []
 
         p.suma_puntos(p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo, totalPts)
 
@@ -1719,7 +1719,7 @@ class IrseAlMazo(IJugada):
             "razon": Razon.FLOR_ACHICADA,
             "valor": totalPts,
           })
-        )]
+        )] if p.verbose else []
 
         p.suma_puntos(p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo, totalPts)
 
@@ -1750,7 +1750,7 @@ class IrseAlMazo(IJugada):
             CodMsg.SIG_TURNO_POSMANO,
             data={
               "valor": p.ronda.turno })
-        )]
+        )] if p.verbose else []
 
       else:
 
@@ -1774,7 +1774,7 @@ class IrseAlMazo(IJugada):
               m=Message(
                 CodMsg.NUEVA_RONDA,
                 data=p.perspectiva(m.jugador.id))
-            ) for m in p.ronda.manojos ]    
+            ) for m in p.ronda.manojos ] if p.verbose else []    
       
     else:
       # cambio de turno solo si era su turno
@@ -1786,7 +1786,7 @@ class IrseAlMazo(IJugada):
           m=Message(
             CodMsg.SIG_TURNO,
             data=p.ronda.turno)
-        )]    
+        )] if p.verbose else []    
      
     return pkts   
 
