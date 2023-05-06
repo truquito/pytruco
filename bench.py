@@ -155,9 +155,18 @@ goroutines
 
 ----------------------
 
-2p :: go (PROCS)
-total 7_363_010 10m0s procs 600
+2p :: go (16 PROCS @ 12600k)
+total 7_363_010 10m0s procs 600 (96% de cluster@24)
 Package id 0:  +70.0°C
+2p :: go (1 PROCS @ 12600k)
+total 796_989 10m0s procs 600
+
+----------------------
+
+2p :: go (24 PROCS @ clusteruy)
+total 7_662_908 10m4s procs 600
+2p :: go (1 PROCS @ clusteruy)
+total 356_081 10m0s procs 600
  
 ----------------------
 
