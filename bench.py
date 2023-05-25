@@ -67,38 +67,7 @@ print(f"total {total}", str(datetime.now() - tic)[:-7])
 
 
 """
-2p :: go (single)
-809_434 10m0s
-796_575 10m0s
-795_242 10m0s
-794_358 10m0s TIME:600.20 RAM:54256
-
-2p :: py (single)
-57_158 1000 0:10:00
-56_540 1000 0:10:00
-56_855 1000 0:10:00
-55_796 1000 0:10:00 TIME:600.05 RAM:17488
-56_582 0:10:00 TIME:600.07 RAM:17420 (sin el try)
-
-----------------------
-
-4p :: go (single)
-398_415 10m0s TIME:600.21 RAM:55360
-
-4p :: py (single)
-30_500 1000 0:10:00 TIME:600.05 RAM:17376
-
-----------------------
-
-6p :: go (single)
-262_517 10m0s TIME:600.22 RAM:55140
-
-6p :: py (single)
-20_695 1000 0:10:00 TIME:600.06 RAM:17464
-
-========================
-
-Observaciones:
+OBERVACIONES:
 
 2p -> 4p -> 6p :: go
 iters: 100% -> 49% -> 32% 
@@ -107,79 +76,8 @@ ram: 100% -> 102% -> 102%
 2p -> 4p -> 6p :: py
 iters: 100% -> 54% -> 36% 
 ram: 100% -> 100% -> 100%
-"""
-
-# ################################
-
-"""
-py_multithread vs py_multiprocessing:
-
-  multithread:
-    thread #0 did 921
-    921 (0:00:10)
-
-    thread #1 did 473
-    thread #0 did 470
-    total=943 (0:00:10)
-
-  multiprocessing
-    All 2 processes done
-    1876 (0:00:10)
-    TIME:10.06 RAM:18172
-
-goroutines
-  t=1 total 6874 5s
-  t=2 total 9345 5s
-  t=3 total 10309 5s
-  t=4 total 10201 5s
-  t=5 total 8971 5s
-  t=6 total 8576 5s
-  t=7 total 7880 5s
-  t=8 total 7651 5s
-  t=9 total 7625 5s
-  TIME:45.25 RAM:54584
-"""
-
-# ################################
-
-"""
-2p :: go (16 GOROUTINES for 10m)
-929_762 10m0s
-938_311 10m0s
-
-----------------------
-
-2p :: go (3 GOROUTINES for 10m)
-1_222_178 10m0s
- - Package id 0:  +30.0°C
-
-----------------------
-
-2p :: go (16 PROCS @ 12600k)
-total 7_363_010 10m0s procs 600 (96% de cluster@24)
-Package id 0:  +70.0°C
-2p :: go (1 PROCS @ 12600k)
-total 796_989 10m0s procs 600
-
-----------------------
-
-2p :: go (24 PROCS @ clusteruy)
-total 7_662_908 10m4s procs 600
-2p :: go (1 PROCS @ clusteruy)
-total 356_081 10m0s procs 600
- 
-----------------------
-
-2p :: py (16 processes for 10m)
-435_739
- - Package id 0:  +75.0°C
-
-"""
-
-# ################################
 
 
-"""
 OBERVACIONES:
 
 [rule-of-thumb] go single thread vs parallel:
