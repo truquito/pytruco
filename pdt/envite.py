@@ -63,7 +63,7 @@ class Envite():
     self.estado              :EstadoEnvite = EstadoEnvite.NOCANTADOAUN
     self.puntaje             :int          = 0
     self.cantado_por         :str          = ""
-    self.juegadores_con_flor :list[Manojo] = None
+    self.jugadores_con_flor :list[Manojo] = None
     self.sin_cantar          :list[str]    = None # sin cantar "la flor"
   
   def to_dict(self) -> Dict[str, any]:
@@ -71,7 +71,7 @@ class Envite():
       "estado": str(self.estado),
       "puntaje": self.puntaje,
       "cantadoPor": self.cantado_por,
-      # "juegadores_con_flor": self.juegadores_con_flor,
+      # "jugadores_con_flor": self.jugadores_con_flor,
       "sinCantar": self.sin_cantar,
     }
 

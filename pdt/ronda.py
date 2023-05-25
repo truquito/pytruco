@@ -272,7 +272,7 @@ class Ronda():
 
   def cachear_flores(self, reset:bool):
     _, jugadores_con_flor = self.get_flores()
-    self.envite.juegadores_con_flor = jugadores_con_flor
+    self.envite.jugadores_con_flor = jugadores_con_flor
 
     if reset:
       self.envite.sin_cantar = [m.jugador.id for m in jugadores_con_flor]
@@ -456,14 +456,14 @@ class Ronda():
 
     # si solo un equipo tiene flor, entonces se saltea esta parte
     soloUnEquipoTieneFlores = True
-    equipo = self.envite.juegadores_con_flor[0].jugador.equipo
-    for m in self.envite.juegadores_con_flor[1:]:
+    equipo = self.envite.jugadores_con_flor[0].jugador.equipo
+    for m in self.envite.jugadores_con_flor[1:]:
       if m.jugador.equipo != equipo:
         soloUnEquipoTieneFlores = False
         break
     
     if soloUnEquipoTieneFlores:
-      return self.envite.juegadores_con_flor[0], 0, []
+      return self.envite.jugadores_con_flor[0], 0, []
 
     # decir flores en orden segun las reglas:
     # empieza el autor del envite
@@ -586,7 +586,7 @@ class Ronda():
 
   def cachear_flores(self, reset:bool) -> None:
     _, jugadores_con_flor = self.get_flores()
-    self.envite.juegadores_con_flor = jugadores_con_flor
+    self.envite.jugadores_con_flor = jugadores_con_flor
 
     if reset:
       self.envite.sin_cantar = [m.jugador.id for m in jugadores_con_flor]

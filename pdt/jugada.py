@@ -697,7 +697,7 @@ class CantarFlor(IJugada):
       # solos los de su equipo tienen flor?
       # si solos los de su equipo tienen flor (y los otros no) -> las canto todas
       soloLosDeSuEquipoTienenFlor = True
-      for m in p.ronda.envite.juegadores_con_flor:
+      for m in p.ronda.envite.jugadores_con_flor:
         if m.jugador.equipo != p.manojo(self.jid).jugador.equipo:
           soloLosDeSuEquipoTienenFlor = False
           break
@@ -739,7 +739,7 @@ class CantarFlor(IJugada):
     # los acumulados del envite hasta ahora
     puntosASumar = p.ronda.envite.puntaje
     p.suma_puntos(equipoGanador, puntosASumar)
-    habiaSolo1JugadorConFlor = len(p.ronda.envite.juegadores_con_flor) == 1
+    habiaSolo1JugadorConFlor = len(p.ronda.envite.jugadores_con_flor) == 1
     if habiaSolo1JugadorConFlor:
       pkts += [Packet(
         dest=["ALL"],
@@ -1626,8 +1626,8 @@ class IrseAlMazo(IJugada):
     # si tenia flor -> ya no lo tomo en cuenta
     tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
     if tieneFlor:
-      p.ronda.envite.juegadores_con_flor = [
-        m for m in p.ronda.envite.juegadores_con_flor \
+      p.ronda.envite.jugadores_con_flor = [
+        m for m in p.ronda.envite.jugadores_con_flor \
           if m.jugador.id != p.manojo(self.jid).jugador.id
       ]
       
