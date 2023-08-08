@@ -174,8 +174,7 @@ class TirarCarta(IJugada):
           dest=["ALL"],
           m=Message(
             CodMsg.SIG_TURNO_POSMANO,
-            data={
-              "valor": p.ronda.turno })
+            data=p.ronda.turno)
         )] if p.verbose else []
 
       else:
@@ -198,7 +197,7 @@ class TirarCarta(IJugada):
               dest=[m.jugador.id],
               m=Message(
                 CodMsg.NUEVA_RONDA,
-                data=p.perspectiva(m.jugador.id))
+                data=p.perspectiva(m.jugador.id).to_dict())
             ) for m in p.ronda.manojos ] if p.verbose else []
 
       # el turno del siguiente queda dado por el ganador de esta
@@ -1524,7 +1523,7 @@ class ResponderNoQuiero(IJugada):
               dest=[m.jugador.id],
               m=Message(
                 CodMsg.NUEVA_RONDA,
-                data=p.perspectiva(m.jugador.id))
+                data=p.perspectiva(m.jugador.id).to_dict())
             ) for m in p.ronda.manojos ] if p.verbose else []    
     
     return pkts   
@@ -1748,8 +1747,7 @@ class IrseAlMazo(IJugada):
           dest=["ALL"],
           m=Message(
             CodMsg.SIG_TURNO_POSMANO,
-            data={
-              "valor": p.ronda.turno })
+            data=p.ronda.turno)
         )] if p.verbose else []
 
       else:
@@ -1773,7 +1771,7 @@ class IrseAlMazo(IJugada):
               dest=[m.jugador.id],
               m=Message(
                 CodMsg.NUEVA_RONDA,
-                data=p.perspectiva(m.jugador.id))
+                data=p.perspectiva(m.jugador.id).to_dict())
             ) for m in p.ronda.manojos ] if p.verbose else []    
       
     else:
