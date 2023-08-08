@@ -14,6 +14,7 @@ class Razon(str, Enum):
   TRUCO_NO_QUERIDO           = "TrucoNoQuerido"
   TRUCO_QUERIDO              = "TrucoQuerido"
   SE_FUERON_AL_MAZO          = "SeFueronAlMazo"
+  ABANDONARON          = "Abandonaron"
 
   def __str__(self) -> str:
     return str(self.value)
