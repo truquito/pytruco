@@ -98,7 +98,7 @@ class Templates:
   
   @staticmethod
   def carta_oculta() -> str:
-    return Templates.mk_carta("──", "#")
+    return Templates.mk_carta("──", "//")
   
   @staticmethod
   def carta_doble_solapada(carta:Carta) -> str:
@@ -152,7 +152,7 @@ class Templates:
   @staticmethod
   def carta_doble_oculta() -> str:
     valores = ["──", "──"]
-    palos = ["#", "#"]
+    palos = ["//", "//"]
     return Templates.mk_carta_doble_visible(valores, palos)
   
   @staticmethod
@@ -185,7 +185,7 @@ class Templates:
   @staticmethod
   def carta_triple_oculta() -> str:
     valores = ["──", "──", "──"]
-    palos = ["#", "#", "#"]
+    palos = ["//", "//", "//"]
     return Templates.mk_carta_triple_visible(valores, palos)
   
 
