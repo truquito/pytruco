@@ -30,24 +30,39 @@ class Perspectiva():
     if msg.cod == CodMsg.DICE_SON_BUENAS:
       # sé qué equipo ganó el envite
       self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
+      self.p.ronda.envite.sin_cantar = []
     if msg.cod == CodMsg.CANTAR_FLOR:
       self.p.ronda.envite.estado = EstadoEnvite.FLOR
       self.p.ronda.envite.cantado_por = msg.cont
+      if msg.cont in self.p.ronda.envite.sin_cantar:
+        self.p.ronda.envite.sin_cantar.remove(msg.cont)
     if msg.cod == CodMsg.CANTAR_CONTRAFLOR:
       self.p.ronda.envite.estado = EstadoEnvite.CONTRAFLOR
       self.p.ronda.envite.cantado_por = msg.cont
+      if msg.cont in self.p.ronda.envite.sin_cantar:
+        self.p.ronda.envite.sin_cantar.remove(msg.cont)
     if msg.cod == CodMsg.CANTAR_CONTRAFLOR_AL_RESTO:
       self.p.ronda.envite.estado = EstadoEnvite.CONTRAFLORALRESTO
       self.p.ronda.envite.cantado_por = msg.cont
+      if msg.cont in self.p.ronda.envite.sin_cantar:
+        self.p.ronda.envite.sin_cantar.remove(msg.cont)
     if msg.cod == CodMsg.TOCAR_ENVIDO:
       self.p.ronda.envite.estado = EstadoEnvite.ENVIDO
       self.p.ronda.envite.cantado_por = msg.cont
+      self.p.ronda.envite.puntaje += 2
+      if msg.cont in self.p.ronda.envite.sin_cantar:
+        self.p.ronda.envite.sin_cantar.remove(msg.cont)
     if msg.cod == CodMsg.TOCAR_REALENVIDO:
       self.p.ronda.envite.estado = EstadoEnvite.REALENVIDO
       self.p.ronda.envite.cantado_por = msg.cont
+      self.p.ronda.envite.puntaje += 3
+      if msg.cont in self.p.ronda.envite.sin_cantar:
+        self.p.ronda.envite.sin_cantar.remove(msg.cont)
     if msg.cod == CodMsg.TOCAR_FALTAENVIDO:
       self.p.ronda.envite.estado = EstadoEnvite.FALTAENVIDO
       self.p.ronda.envite.cantado_por = msg.cont
+      if msg.cont in self.p.ronda.envite.sin_cantar:
+        self.p.ronda.envite.sin_cantar.remove(msg.cont)
     if msg.cod == CodMsg.GRITAR_TRUCO:
       self.p.ronda.truco.estado = EstadoTruco.TRUCO
       self.p.ronda.truco.cantado_por = msg.cont
@@ -59,7 +74,8 @@ class Perspectiva():
       self.p.ronda.truco.cantado_por = msg.cont
     if msg.cod == CodMsg.NO_QUIERO:
       if self.p.ronda.envite.estado != EstadoEnvite.DESHABILITADO:
-        self.p.ronda.envite.estado == EstadoEnvite.DESHABILITADO
+        self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
+        self.p.ronda.envite.sin_cantar = []
       else:
         # si es al truco al que le esta diciendo `NO_QUIERO` entonces deberia de
         # empezar una nueva ronda.
@@ -67,7 +83,8 @@ class Perspectiva():
         # tiempo a que lleguen los otros mensajes 
         pass
     if msg.cod == CodMsg.CON_FLOR_ME_ACHICO:
-      self.p.ronda.envite.estado == EstadoEnvite.DESHABILITADO
+      self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
+      self.p.ronda.envite.sin_cantar = []
     if msg.cod == CodMsg.QUIERO_TRUCO:
       if self.p.ronda.truco.estado == EstadoTruco.TRUCO:
         self.p.ronda.truco.estado = EstadoTruco.TRUCOQUERIDO
@@ -81,6 +98,7 @@ class Perspectiva():
       # se pasaria a evaluar
       self.p.ronda.envite.cantado_por = msg.cont
       self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
+      self.p.ronda.envite.sin_cantar = []
     if msg.cod == CodMsg.SIG_TURNO:
       self.p.ronda.turno = msg.cont
     if msg.cod == CodMsg.SIG_TURNO_POSMANO:
@@ -92,6 +110,7 @@ class Perspectiva():
       # doy por ganado el envite
       self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
       self.p.ronda.envite.cantado_por = msg.cont["autor"]
+      self.p.ronda.envite.sin_cantar = []
     if msg.cod == CodMsg.NUEVA_PARTIDA:
       data = json.dumps(msg.cont) # me viene un dict
       self.p = Partida.parse(data)
@@ -133,6 +152,7 @@ class Perspectiva():
                               Razon.CONTRAFLOR_GANADA, 
                               Razon.CONTRAFLOR_AL_RESTO_GANADA]:
         self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
+        self.p.ronda.envite.sin_cantar = []
       if msg.cont["razon"] == [Razon.TRUCO_NO_QUERIDO, Razon.TRUCO_QUERIDO, 
                               Razon.SE_FUERON_AL_MAZO]:
         # no hago nada

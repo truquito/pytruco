@@ -9,7 +9,7 @@ parser.add_argument("-v", "--verbose",
 args = parser.parse_args()
 
 from pdt.partida import Partida
-from pdt.chi import is_done, chi
+from pdt.chi import is_done, chi, chis
 from enco.codmsg import CodMsg
 from pdt.partida import Partida
 
@@ -59,11 +59,7 @@ for i in range(total+1):
     progres_pct = round((i / total) * 100)
     print(f"{progres_pct}%")
 
-  p = Partida(puntuacion=20,
-              azules=[jug0], 
-              rojos=[jug1], 
-              dummy=False, 
-              verbose=True)
+  p = Partida(puntuacion=20, azules=[jug0], rojos=[jug1], dummy=False, verbose=True)
   p0 = Perspectiva(jug0, p.perspectiva(jug0).to_json())
   p1 = Perspectiva(jug1, p.perspectiva(jug1).to_json())
 
@@ -80,6 +76,19 @@ for i in range(total+1):
       # AHORA:
       aa0 = p0.chi(allow_mazo=False)
       aa1 = p1.chi(allow_mazo=False)
+      aas = chis(p, allow_mazo=False)
+      # checkeo de correctitud
+      ok = len(aas[0]) == len(aa0) and len(aas[1]) == len(aa1)
+      if not ok:
+        print("los chis no coinciden")
+        print(p)
+        print(f"chis: {aas}")
+        print(f"chi jug0: {aa0}")
+        print(f"chi jug1: {aa1}")
+        chis(p, allow_mazo=False)
+        p0.chi(allow_mazo=False)
+        p1.chi(allow_mazo=False)
+        raise Exception("los chis no coinciden")
       # quien tiene mas opciones de jugada?
       aa = aa0 if len(aa0) >= len(aa1) else aa1
       jug_idx = 0 if len(aa0) >= len(aa1) else 1
