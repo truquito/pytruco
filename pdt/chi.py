@@ -11,7 +11,7 @@ GritarReTruco, GritarVale4, ResponderQuiero, ResponderNoQuiero, IrseAlMazo
 """ retorna `True` si una ronda ha terminado segun una lista de `Packet`"""
 def is_done(pkts:list[Packet]) -> bool:
   dones = [CodMsg.NUEVA_PARTIDA, CodMsg.NUEVA_RONDA, CodMsg.RONDA_GANADA]
-  return any(pkt.message.codmsg in dones for pkt in pkts)
+  return any(pkt.message.cod in dones for pkt in pkts)
 
 def random_action_chi(chi:list[IJugada]) -> int:
   return random.randrange(len(chi))
