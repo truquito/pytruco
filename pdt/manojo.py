@@ -23,7 +23,7 @@ class Manojo():
   def to_dict(self) -> Dict[str, any]:
     return {
       "seFueAlMazo": self.se_fue_al_mazo,
-      "cartas": [c.to_dict() for c in self.cartas],
+      "cartas": [c.to_dict() if c is not None else None for c in self.cartas],
       "tiradas": self.tiradas,
       "ultimaTirada": self.ultima_tirada,
       "jugador": self.jugador.to_dict(),
@@ -47,6 +47,8 @@ class Manojo():
   """devuelve `true` si el jugador tiene flor.
   Y ademas, si tiene devuelve que tipo de flor: 1, 2 o 3"""
   def tiene_flor(self, muestra:Carta) -> tuple[bool, int]:
+    if None in self.cartas: return (False, -1)
+
     # caso 1: al menos dos piezas
     piezas = [c.es_pieza(muestra) for c in self.cartas]
     t = sum(piezas)

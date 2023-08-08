@@ -89,6 +89,7 @@ class Carta():
     return str(self)
   
   def __eq__(self, __value: Carta) -> bool:
+    if __value == None: return False
     mismo_palo = self.palo == __value.palo
     mismo_valor = self.valor == __value.valor
     return mismo_palo and mismo_valor

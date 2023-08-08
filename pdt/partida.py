@@ -781,7 +781,7 @@ class Partida():
       m.tiradas = d["ronda"]["manojos"][ix]["tiradas"]
       m.se_fue_al_mazo = d["ronda"]["manojos"][ix]["seFueAlMazo"]
       m.cartas = [
-        Carta(int(c["valor"]), c["palo"]) \
+        Carta(int(c["valor"]), c["palo"]) if c is not None else None \
         for c in d["ronda"]["manojos"][ix]["cartas"]
       ]
 
