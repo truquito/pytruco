@@ -1,6 +1,10 @@
 from enum import Enum
 
 class CodMsg(Enum):
+  # errores async
+  ABANDONO                   = "Abandono"
+  TIMEOUT                    = "TimeOut"
+  # --
   ERROR                      = "Error"
   BYEBYE                     = "ByeBye"
   DICE_SON_BUENAS            = "DiceSonBuenas"
@@ -26,9 +30,7 @@ class CodMsg(Enum):
   TIRAR_CARTA                = "TirarCarta"
   SUMA_PTS                   = "SumaPts"
   MAZO                       = "Mazo"
-  TIMEOUT                    = "TimeOut"
   EL_ENVIDO_ESTA_PRIMERO     = "ElEnvidoEstaPrimero"
-  ABANDONO                   = "Abandono"
   LA_MANO_RESULTA_PARDA      = "LaManoResultaParda"
   MANO_GANADA                = "ManoGanada"
   RONDA_GANADA               = "RondaGanada"
