@@ -14,7 +14,7 @@ from enco.codmsg import CodMsg
 from pdt.partida import Partida
 
 
-from partial.partial import Perspectiva
+from perspectiva.perspectiva import Perspectiva
 
 # parse ?
 # original
@@ -46,8 +46,6 @@ def print_every_p(p :Partida, p_chosen :Perspectiva, p_alt :Perspectiva):
   print("="*80)
 
 # random.seed(42)
-
-from partial.partial import Perspectiva
 
 total = 1_000
 next_hit = 0

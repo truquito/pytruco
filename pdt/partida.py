@@ -31,7 +31,9 @@ class IJugada():
     pass
   def __repr__(self) -> str:
     return str(self)
-  
+
+# si `verbose` `False` no se generan `Envelope`s
+# si `dummy` es `True` no se reparten cartas y no se cachean las flores
 class Partida():
   def __init__(
       self,
