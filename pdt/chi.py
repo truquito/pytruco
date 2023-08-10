@@ -1,6 +1,6 @@
 import random
 
-from enco.packet import Packet
+from enco.envelope import Envelope
 from enco.codmsg import CodMsg
 from .partida import IJugada, Partida
 from .manojo import Manojo
@@ -8,8 +8,8 @@ from .jugada import TirarCarta, TocarEnvido, TocarRealEnvido, TocarFaltaEnvido, 
 CantarFlor, CantarContraFlor, CantarContraFlorAlResto, GritarTruco, \
 GritarReTruco, GritarVale4, ResponderQuiero, ResponderNoQuiero, IrseAlMazo
 
-""" retorna `True` si una ronda ha terminado segun una lista de `Packet`"""
-def is_done(pkts:list[Packet]) -> bool:
+""" retorna `True` si una ronda ha terminado segun una lista de `Envelope`"""
+def is_done(pkts:list[Envelope]) -> bool:
   dones = [CodMsg.NUEVA_PARTIDA, CodMsg.NUEVA_RONDA, CodMsg.RONDA_GANADA]
   return any(pkt.message.cod in dones for pkt in pkts)
 

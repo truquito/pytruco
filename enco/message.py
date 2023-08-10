@@ -7,8 +7,8 @@ class Message():
     t:CodMsg,
     data:any=None) -> None:
 
-    self.cod :CodMsg = t
-    self.cont   :str    = data
+    self.cod  :CodMsg = t
+    self.cont :any    = data
   
   def to_dict(self) -> Dict[str,Any]:
     return {

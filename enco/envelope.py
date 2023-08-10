@@ -1,6 +1,6 @@
 from .message import Message
 
-class Packet():
+class Envelope():
   def __init__(self, dest:list[str], m:Message) -> None:
     self.destination :list[str] = dest
     self.message     :Message   = m
