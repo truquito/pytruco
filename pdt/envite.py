@@ -9,7 +9,7 @@ from .manojo import Manojo
 class EstadoEnvite(Enum):
 
   DESHABILITADO     = "deshabilitado"
-  NOCANTADOAUN      = "noCantadoAun"
+  NOGRITADOAUNAUN      = "noCantadoAun"
   ENVIDO            = "envido"
   REALENVIDO        = "realEnvido"
   FALTAENVIDO       = "faltaEnvido"
@@ -43,14 +43,14 @@ class EstadoEnvite(Enum):
   
   def parse(ee:str) -> EstadoEnvite:
     if ee not in map(lambda x: str(x), [ 
-        EstadoEnvite.DESHABILITADO, EstadoEnvite.NOCANTADOAUN, 
+        EstadoEnvite.DESHABILITADO, EstadoEnvite.NOGRITADOAUNAUN, 
         EstadoEnvite.ENVIDO, EstadoEnvite.REALENVIDO, EstadoEnvite.FALTAENVIDO, 
         EstadoEnvite.FLOR, EstadoEnvite.CONTRAFLOR, 
         EstadoEnvite.CONTRAFLORALRESTO ]):
       raise Exception("Estado envite invalido")
     
     return EstadoEnvite.DESHABILITADO if ee == EstadoEnvite.DESHABILITADO \
-      else EstadoEnvite.NOCANTADOAUN if ee == EstadoEnvite.NOCANTADOAUN \
+      else EstadoEnvite.NOGRITADOAUNAUN if ee == EstadoEnvite.NOGRITADOAUNAUN \
       else EstadoEnvite.ENVIDO if ee == EstadoEnvite.ENVIDO \
       else EstadoEnvite.REALENVIDO if ee == EstadoEnvite.REALENVIDO \
       else EstadoEnvite.FALTAENVIDO if ee == EstadoEnvite.FALTAENVIDO \
@@ -60,7 +60,7 @@ class EstadoEnvite(Enum):
   
 class Envite():
   def __init__(self):
-    self.estado              :EstadoEnvite = EstadoEnvite.NOCANTADOAUN
+    self.estado              :EstadoEnvite = EstadoEnvite.NOGRITADOAUNAUN
     self.puntaje             :int          = 0
     self.cantado_por         :str          = ""
     self.jugadores_con_flor :list[Manojo] = None

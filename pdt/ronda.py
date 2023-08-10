@@ -10,7 +10,7 @@ from .manojo import Manojo
 from .mano import Mano, Resultado
 from .jugador import Jugador
 
-from enco.packet import Packet
+from enco.envelope import Envelope
 from enco.message import Message
 from enco.codmsg import CodMsg
 
@@ -305,7 +305,7 @@ class Ronda():
   @return `jIdx JugadorIdx` Es el indice del jugador con
   el envido mas alto (i.e., ganador)
   @return `max int` Es el valor numerico del maximo envido
-  @return `pkts []*Packet` Es conjunto ordenado de todos
+  @return `pkts []*Envelope` Es conjunto ordenado de todos
   los mensajes que normalmente se escucharian en una ronda
   de envido en la vida real.
   e.g.:
@@ -314,8 +314,8 @@ class Ronda():
     `pkts[2] = Pedro dice: "30 son mejores!"`
   	`pkts[3] = Juan dice: "33 son mejores!"`
   """
-  def exec_el_envido(self, verbose=True) -> tuple[int, int, list[Packet]]:
-    pkts :list[Packet] = []
+  def exec_el_envido(self, verbose=True) -> tuple[int, int, list[Envelope]]:
+    pkts :list[Envelope] = []
     
     cant_jugadores = len(self.manojos)
 
@@ -342,7 +342,7 @@ class Ronda():
     
     ya_dijeron[jIdx] = True
 
-    pkts += [Packet(
+    pkts += [Envelope(
       ["ALL"],
       Message(
         CodMsg.DICE_TENGO,
@@ -380,7 +380,7 @@ class Ronda():
 
         if sonMejores:
           if esDeEquipoContrario:
-            pkts += [Packet(
+            pkts += [Envelope(
               ["ALL"],
               Message(
                 CodMsg.DICE_SON_MEJORES,
@@ -406,7 +406,7 @@ class Ronda():
           if esDeEquipoContrario:
             if todaviaNoDijeronSonMejores:
 
-              pkts += [Packet(
+              pkts += [Envelope(
                 ["ALL"],
                 Message(
                   CodMsg.DICE_SON_BUENAS,
@@ -442,7 +442,7 @@ class Ronda():
   @return `j *Manojo` Es el ptr al manojo con
   la flor mas alta (i.e., ganador)
   @return `max int` Es el valor numerico de la flor mas alta
-  @return `pkts []*Packet` Es conjunto ordenado de todos
+  @return `pkts []*Envelope` Es conjunto ordenado de todos
   los mensajes que normalmente se escucharian en una ronda
   de flor en la vida real empezando desde jIdx
   e.g.:
@@ -451,8 +451,8 @@ class Ronda():
     `pkts[2] = Pedro dice: "30 son mejores!"`
     `pkts[3] = Juan dice: "33 son mejores!"`
   """
-  def exec_las_flores(self, aPartirDe:int, verbose=True) -> tuple[Manojo, int, list[Packet]]:
-    pkts:list[Packet] = []
+  def exec_las_flores(self, aPartirDe:int, verbose=True) -> tuple[Manojo, int, list[Envelope]]:
+    pkts:list[Envelope] = []
 
     # si solo un equipo tiene flor, entonces se saltea esta parte
     soloUnEquipoTieneFlores = True
@@ -487,7 +487,7 @@ class Ronda():
     # empieza el del parametro
     if flores[aPartirDe] > 0:
       yaDijeron[aPartirDe] = True
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.DICE_TENGO,
@@ -523,7 +523,7 @@ class Ronda():
 
         if sonMejores:
           if esDeEquipoContrario:
-            pkts += [Packet(
+            pkts += [Envelope(
               ["ALL"],
               Message(
                 CodMsg.DICE_SON_MEJORES,
@@ -548,7 +548,7 @@ class Ronda():
         else: # tiene el envido mas chico
           if esDeEquipoContrario:
             if todaviaNoDijeronSonMejores:
-              pkts += [Packet(
+              pkts += [Envelope(
                 ["ALL"],
                 Message(
                   CodMsg.DICE_SON_BUENAS,

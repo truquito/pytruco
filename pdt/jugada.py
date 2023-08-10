@@ -6,7 +6,7 @@ from .mano import NumMano, Resultado
 from .truco import EstadoTruco
 from .equipo import Equipo
 
-from enco.packet import Packet
+from enco.envelope import Envelope
 from enco.message import Message
 from enco.codmsg import CodMsg
 from enco.razon import Razon
@@ -23,13 +23,13 @@ class TirarCarta(IJugada):
     return f"{self.jid} {self.carta.valor} {self.carta.palo}"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
     # checkeo si se fue al mazo
     noSeFueAlMazo = not p.manojo(self.jid).se_fue_al_mazo
     ok = noSeFueAlMazo
     if not ok:
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.ERROR,
@@ -42,7 +42,7 @@ class TirarCarta(IJugada):
     # luego de haber jugado sus 3 cartas; aun asi lo dejo
     yaTiroTodasSusCartas = p.manojo(self.jid).get_cant_cartas_tiradas() == 3
     if yaTiroTodasSusCartas:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -53,7 +53,7 @@ class TirarCarta(IJugada):
     # checkeo flor en juego
     enviteEnJuego = p.ronda.envite.estado >= EstadoEnvite.ENVIDO
     if enviteEnJuego:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -64,7 +64,7 @@ class TirarCarta(IJugada):
     # primero que nada: tiene esa carta?
     idx = p.manojo(self.jid).get_carta_idx(self.carta)
     if idx is None:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -75,7 +75,7 @@ class TirarCarta(IJugada):
     # ya jugo esa carta?
     todaviaNoLaTiro = not p.manojo(self.jid).tiradas[idx]
     if not todaviaNoLaTiro:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -86,7 +86,7 @@ class TirarCarta(IJugada):
     # luego, era su turno?
     eraSuTurno = p.ronda.get_el_turno().jugador.id == p.manojo(self.jid).jugador.id
     if not eraSuTurno:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -95,14 +95,14 @@ class TirarCarta(IJugada):
       return pkts, False
     
     # checkeo si tiene flor
-    florHabilitada = (p.ronda.envite.estado >= EstadoEnvite.NOCANTADOAUN and \
+    florHabilitada = (p.ronda.envite.estado >= EstadoEnvite.NOGRITADOAUNAUN and \
                       p.ronda.envite.estado <= EstadoEnvite.FLOR) and \
                       p.ronda.mano_en_juego == NumMano.PRIMERA
     tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
     noCantoFlorAun = p.ronda.envite.no_canto_flor_aun(p.manojo(self.jid).jugador.id)
     noPuedeTirar = florHabilitada and tieneFlor and noCantoFlorAun
     if noPuedeTirar:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -116,7 +116,7 @@ class TirarCarta(IJugada):
     yoGiteElTruco = trucoGritado and p.manojo(self.jid).jugador.id == p.ronda.truco.cantado_por
     elTrucoEsRespondible = trucoGritado and unoDelEquipoContrarioGritoTruco and not yoGiteElTruco
     if elTrucoEsRespondible:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -127,8 +127,8 @@ class TirarCarta(IJugada):
 
     return pkts, True   
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
@@ -136,7 +136,7 @@ class TirarCarta(IJugada):
       return pkts
     
     # ok la tiene y era su turno -> la juega
-    pkts += [Packet(
+    pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.TIRAR_CARTA,
@@ -161,7 +161,7 @@ class TirarCarta(IJugada):
       if not empiezaNuevaRonda:
 
         seTerminoLaPrimeraMano = p.ronda.mano_en_juego == NumMano.PRIMERA
-        nadieCantoEnvite = p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN
+        nadieCantoEnvite = p.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN
         if seTerminoLaPrimeraMano and nadieCantoEnvite:
           p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
           p.ronda.envite.sin_cantar = []
@@ -170,7 +170,7 @@ class TirarCarta(IJugada):
         p.ronda.mano_en_juego = NumMano.inc(p.ronda.mano_en_juego)
         p.ronda.set_next_turno_pos_mano()
         # lo envio
-        pkts += [Packet(
+        pkts += [Envelope(
           dest=["ALL"],
           m=Message(
             CodMsg.SIG_TURNO_POSMANO,
@@ -193,7 +193,7 @@ class TirarCarta(IJugada):
           # ridiculo
 
           pkts += [
-            Packet(
+            Envelope(
               dest=[m.jugador.id],
               m=Message(
                 CodMsg.NUEVA_RONDA,
@@ -203,7 +203,7 @@ class TirarCarta(IJugada):
       # el turno del siguiente queda dado por el ganador de esta
     else:
       p.ronda.set_next_turno()
-      pkts += [Packet(
+      pkts += [Envelope(
           dest=["ALL"],
           m=Message(
             CodMsg.SIG_TURNO,
@@ -224,12 +224,12 @@ class TocarEnvido(IJugada):
     return f"{self.jid} envido"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
     # checkeo flor en juego
     florEnJuego = p.ronda.envite.estado >= EstadoEnvite.FLOR
     if florEnJuego:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -241,10 +241,10 @@ class TocarEnvido(IJugada):
     esPrimeraMano = p.ronda.mano_en_juego == NumMano.PRIMERA
     esSuTurno = p.ronda.get_el_turno().jugador.id == p.manojo(self.jid).jugador.id
     tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
-    envidoHabilitado = (p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN or p.ronda.envite.estado == EstadoEnvite.ENVIDO)
+    envidoHabilitado = (p.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN or p.ronda.envite.estado == EstadoEnvite.ENVIDO)
 
     if not envidoHabilitado:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -253,13 +253,13 @@ class TocarEnvido(IJugada):
 
       return pkts, False
     
-    esDelEquipoContrario = p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN or p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo != p.manojo(self.jid).jugador.equipo
+    esDelEquipoContrario = p.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN or p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo != p.manojo(self.jid).jugador.equipo
     yaEstabamosEnEnvido = p.ronda.envite.estado == EstadoEnvite.ENVIDO
     # apuestaSaturada = p.ronda.envite.Puntaje >= p.CalcPtsFalta()
     apuestaSaturada = p.ronda.envite.puntaje >= 4
-    trucoNoCantado = p.ronda.truco.estado == EstadoTruco.NOCANTADO
+    trucoNoCantado = p.ronda.truco.estado == EstadoTruco.NOGRITADOAUN
 
-    estaIniciandoPorPrimeraVezElEnvido = esSuTurno and p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN and trucoNoCantado
+    estaIniciandoPorPrimeraVezElEnvido = esSuTurno and p.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN and trucoNoCantado
     estaRedoblandoLaApuesta = p.ronda.envite.estado == EstadoEnvite.ENVIDO and esDelEquipoContrario # cuando redobla una apuesta puede o no ser su turno
     elEnvidoEstaPrimero = (not esSuTurno) and p.ronda.truco.estado == EstadoTruco.TRUCO and (not yaEstabamosEnEnvido) and esPrimeraMano
 
@@ -268,7 +268,7 @@ class TocarEnvido(IJugada):
     ok = (not seFueAlMazo) and (envidoHabilitado and esPrimeraMano and (not tieneFlor) and esDelEquipoContrario) and puedeTocarEnvido and (not apuestaSaturada)
 
     if not ok:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -278,8 +278,8 @@ class TocarEnvido(IJugada):
     
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
@@ -292,16 +292,16 @@ class TocarEnvido(IJugada):
 
     if elEnvidoEstaPrimero:
       # deshabilito el truco
-      p.ronda.truco.estado = EstadoTruco.NOCANTADO
+      p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
       p.ronda.truco.cantado_por = ""
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.EL_ENVIDO_ESTA_PRIMERO,
           data=p.manojo(self.jid).jugador.id)
       )] if p.verbose else []
 
-    pkts += [Packet(
+    pkts += [Envelope(
       dest=["ALL"],
       m=Message(
         CodMsg.TOCAR_ENVIDO,
@@ -332,8 +332,8 @@ class TocarEnvido(IJugada):
   
   @param 'j' el jugador que dijo 'quiero' al 'envido'/'real envido'
   """
-  def eval(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def eval(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
     p.ronda.envite.sin_cantar = []
     jIdx, _, res = p.ronda.exec_el_envido(verbose=p.verbose)
@@ -341,14 +341,14 @@ class TocarEnvido(IJugada):
     pkts += res if p.verbose else []
     jug = p.ronda.manojos[jIdx].jugador
 
-    pkts += [Packet(
+    pkts += [Envelope(
       dest=["ALL"],
       m=Message(
         CodMsg.SUMA_PTS,
         data={
           "autor": jug.id,
           "razon": Razon.ENVIDO_GANADO,
-          "valor": p.ronda.envite.puntaje,
+          "puntos": p.ronda.envite.puntaje,
         })
     )] if p.verbose else []
 
@@ -368,13 +368,13 @@ class TocarRealEnvido(IJugada):
     return f"{self.jid} real-envido"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     # checkeo flor en juego
     florEnJuego = p.ronda.envite.estado >= EstadoEnvite.FLOR
     if florEnJuego:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -386,10 +386,10 @@ class TocarRealEnvido(IJugada):
     esPrimeraMano = p.ronda.mano_en_juego == NumMano.PRIMERA
     esSuTurno = p.ronda.get_el_turno().jugador.id == p.manojo(self.jid).jugador.id
     tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
-    realEnvidoHabilitado = (p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN \
+    realEnvidoHabilitado = (p.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN \
                             or p.ronda.envite.estado == EstadoEnvite.ENVIDO)
     if not realEnvidoHabilitado:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -397,12 +397,12 @@ class TocarRealEnvido(IJugada):
       )] if p.verbose else []
       return pkts, False
     
-    esDelEquipoContrario = p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN or \
+    esDelEquipoContrario = p.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN or \
       p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo != p.manojo(self.jid).jugador.equipo
     yaEstabamosEnEnvido = p.ronda.envite.estado == EstadoEnvite.ENVIDO
-    trucoNoCantado = p.ronda.truco.estado == EstadoTruco.NOCANTADO
+    trucoNoCantado = p.ronda.truco.estado == EstadoTruco.NOGRITADOAUN
 
-    estaIniciandoPorPrimeraVezElEnvido = esSuTurno and p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN and trucoNoCantado
+    estaIniciandoPorPrimeraVezElEnvido = esSuTurno and p.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN and trucoNoCantado
     estaRedoblandoLaApuesta = p.ronda.envite.estado == EstadoEnvite.ENVIDO and esDelEquipoContrario # cuando redobla una apuesta puede o no ser su turno
     elEnvidoEstaPrimero = (not esSuTurno) and p.ronda.truco.estado == EstadoTruco.TRUCO and (not yaEstabamosEnEnvido) and esPrimeraMano
 
@@ -410,7 +410,7 @@ class TocarRealEnvido(IJugada):
     ok = (not seFueAlMazo) and (realEnvidoHabilitado and esPrimeraMano and (not tieneFlor) and esDelEquipoContrario) and puedeTocarRealEnvido
 
     if not ok:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -420,8 +420,8 @@ class TocarRealEnvido(IJugada):
     
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
@@ -434,17 +434,17 @@ class TocarRealEnvido(IJugada):
 
     if elEnvidoEstaPrimero:
       # deshabilito el truco
-      p.ronda.truco.estado = EstadoTruco.NOCANTADO
+      p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
       p.ronda.truco.cantado_por = ""
 
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.EL_ENVIDO_ESTA_PRIMERO,
           data=p.manojo(self.jid).jugador.id)
       )] if p.verbose else []
 
-    pkts += [Packet(
+    pkts += [Envelope(
       dest=["ALL"],
       m=Message(
         CodMsg.TOCAR_REALENVIDO,
@@ -478,13 +478,13 @@ class TocarFaltaEnvido(IJugada):
     return f"{self.jid} falta-envido"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     # checkeo flor en juego
     florEnJuego = p.ronda.envite.estado >= EstadoEnvite.FLOR
     if florEnJuego:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -496,11 +496,11 @@ class TocarFaltaEnvido(IJugada):
     esSuTurno = p.ronda.get_el_turno().jugador.id == p.manojo(self.jid).jugador.id
     esPrimeraMano = p.ronda.mano_en_juego == NumMano.PRIMERA
     tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
-    faltaEnvidoHabilitado = p.ronda.envite.estado >= EstadoEnvite.NOCANTADOAUN \
+    faltaEnvidoHabilitado = p.ronda.envite.estado >= EstadoEnvite.NOGRITADOAUNAUN \
       and p.ronda.envite.estado < EstadoEnvite.FALTAENVIDO
     
     if (not faltaEnvidoHabilitado):
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -508,11 +508,11 @@ class TocarFaltaEnvido(IJugada):
       )] if p.verbose else []
       return pkts, False
     
-    esDelEquipoContrario = p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN or p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo != p.manojo(self.jid).jugador.equipo
+    esDelEquipoContrario = p.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN or p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo != p.manojo(self.jid).jugador.equipo
     yaEstabamosEnEnvido = p.ronda.envite.estado >= EstadoEnvite.ENVIDO
-    trucoNoCantado = p.ronda.truco.estado == EstadoTruco.NOCANTADO
+    trucoNoCantado = p.ronda.truco.estado == EstadoTruco.NOGRITADOAUN
 
-    estaIniciandoPorPrimeraVezElEnvido = esSuTurno and p.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN and trucoNoCantado
+    estaIniciandoPorPrimeraVezElEnvido = esSuTurno and p.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN and trucoNoCantado
     estaRedoblandoLaApuesta = p.ronda.envite.estado >= EstadoEnvite.ENVIDO and p.ronda.envite.estado < EstadoEnvite.FALTAENVIDO and esDelEquipoContrario # cuando redobla una apuesta puede o no ser su turno
     elEnvidoEstaPrimero = (not esSuTurno) and p.ronda.truco.estado == EstadoTruco.TRUCO and (not yaEstabamosEnEnvido) and esPrimeraMano
 
@@ -520,7 +520,7 @@ class TocarFaltaEnvido(IJugada):
     ok = (not seFueAlMazo) and (faltaEnvidoHabilitado and esPrimeraMano and (not tieneFlor) and esDelEquipoContrario) and puedeTocarFaltaEnvido
 
     if not ok:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -530,8 +530,8 @@ class TocarFaltaEnvido(IJugada):
         
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
@@ -544,16 +544,16 @@ class TocarFaltaEnvido(IJugada):
 
     if elEnvidoEstaPrimero:
       # deshabilito el truco
-      p.ronda.truco.estado = EstadoTruco.NOCANTADO
+      p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
       p.ronda.truco.cantado_por = ""
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.EL_ENVIDO_ESTA_PRIMERO,
           data=p.manojo(self.jid).jugador.id)
       )] if p.verbose else []
 
-    pkts += [Packet(
+    pkts += [Envelope(
       dest=["ALL"],
       m=Message(
         CodMsg.TOCAR_FALTAENVIDO,
@@ -583,8 +583,8 @@ class TocarFaltaEnvido(IJugada):
  		si estan en malas: se juega por completar las malas
  		si no: se juega por el resto del maximo puntaje
   """
-  def eval(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def eval(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
     p.ronda.envite.sin_cantar = []
 
@@ -600,14 +600,14 @@ class TocarFaltaEnvido(IJugada):
 
     p.ronda.envite.puntaje += pts
 
-    pkts += [Packet(
+    pkts += [Envelope(
       dest=["ALL"],
       m=Message(
         CodMsg.SUMA_PTS,
         data={
           "autor": jug.id,
           "razon": Razon.FALTA_ENVIDO_GANADO,
-          "valor": p.ronda.envite.puntaje,
+          "puntos": p.ronda.envite.puntaje,
         })
     )] if p.verbose else []
 
@@ -627,13 +627,13 @@ class CantarFlor(IJugada):
     return f"{self.jid} flor"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     # manojo dice que puede cantar flor;
     # es esto verdad?
     seFueAlMazo = p.manojo(self.jid).se_fue_al_mazo
-    florHabilitada = (p.ronda.envite.estado >= EstadoEnvite.NOCANTADOAUN) and p.ronda.mano_en_juego == NumMano.PRIMERA
+    florHabilitada = (p.ronda.envite.estado >= EstadoEnvite.NOGRITADOAUNAUN) and p.ronda.mano_en_juego == NumMano.PRIMERA
     tieneFlor, _ = p.manojo(self.jid).tiene_flor(p.ronda.muestra)
     noCantoFlorAun = p.ronda.envite.no_canto_flor_aun(p.manojo(self.jid).jugador.id)
     
@@ -647,7 +647,7 @@ class CantarFlor(IJugada):
     ok = (not seFueAlMazo) and florHabilitada and tieneFlor and noCantoFlorAun
 
     if not ok:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -657,8 +657,8 @@ class CantarFlor(IJugada):
       
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
@@ -666,7 +666,7 @@ class CantarFlor(IJugada):
       return pkts
     
     # yo canto
-    pkts += [Packet(
+    pkts += [Envelope(
       ["ALL"],
       Message(
         CodMsg.CANTAR_FLOR,
@@ -678,7 +678,7 @@ class CantarFlor(IJugada):
     # si no lo desacivo: medio como que se olvida
     # QUEDA CONSISTENTE CON "EL ENVIDO ESTA PRIMERO"!
     p.ronda.truco.cantado_por = ""
-    p.ronda.truco.estado = EstadoTruco.NOCANTADO
+    p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
 
     # y me elimino de los que no-cantaron
     p.ronda.envite.canto_flor(p.manojo(self.jid).jugador.id)
@@ -714,8 +714,8 @@ class CantarFlor(IJugada):
     return pkts   
 
 
-  def eval(p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def eval(p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     
     florEnJuego = p.ronda.envite.estado >= EstadoEnvite.FLOR
     todosLosJugadoresConFlorCantaron = len(p.ronda.envite.sin_cantar) == 0
@@ -740,25 +740,25 @@ class CantarFlor(IJugada):
     p.suma_puntos(equipoGanador, puntosASumar)
     habiaSolo1JugadorConFlor = len(p.ronda.envite.jugadores_con_flor) == 1
     if habiaSolo1JugadorConFlor:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.SUMA_PTS,
           data={
             "autor": manojoConLaFlorMasAlta.jugador.id,
             "razon": Razon.LA_UNICA_FLOR,
-            "valor": puntosASumar,
+            "puntos": puntosASumar,
           })
       )] if p.verbose else []
     else:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.SUMA_PTS,
           data={
             "autor": manojoConLaFlorMasAlta.jugador.id,
             "razon": Razon.LA_FLOR_MASALTA,
-            "valor": puntosASumar,
+            "puntos": puntosASumar,
           })
       )] if p.verbose else []
 
@@ -778,8 +778,8 @@ class CantarContraFlor(IJugada):
     return f"{self.jid} contra-flor"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
     # manojo dice que puede cantar flor;
     # es esto verdad?
     seFueAlMazo = p.manojo(self.jid).se_fue_al_mazo
@@ -789,7 +789,7 @@ class CantarContraFlor(IJugada):
     noCantoFlorAun = p.ronda.envite.no_canto_flor_aun(p.manojo(self.jid).jugador.id)
     ok = (not seFueAlMazo) and contraFlorHabilitada and tieneFlor and esDelEquipoContrario and noCantoFlorAun
     if not ok:
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.ERROR,
@@ -799,8 +799,8 @@ class CantarContraFlor(IJugada):
 
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
@@ -808,7 +808,7 @@ class CantarContraFlor(IJugada):
       return pkts
     
     # la canta
-    pkts += [Packet(
+    pkts += [Envelope(
       ["ALL"],
       Message(
         CodMsg.CANTAR_CONTRAFLOR,
@@ -834,8 +834,8 @@ class CantarContraFlorAlResto(IJugada):
     return f"{self.jid} contra-flor-al-resto"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     # manojo dice que puede cantar flor;
     # es esto verdad?
@@ -848,7 +848,7 @@ class CantarContraFlorAlResto(IJugada):
     noCantoFlorAun = p.ronda.envite.no_canto_flor_aun(p.manojo(self.jid).jugador.id)
     ok = (not seFueAlMazo) and contraFlorHabilitada and tieneFlor and esDelEquipoContrario and noCantoFlorAun
     if not ok:
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.ERROR,
@@ -858,8 +858,8 @@ class CantarContraFlorAlResto(IJugada):
         
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
@@ -867,7 +867,7 @@ class CantarContraFlorAlResto(IJugada):
       return pkts
     
     # la canta
-    pkts += [Packet(
+    pkts += [Envelope(
       ["ALL"],
       Message(
         CodMsg.CANTAR_CONTRAFLOR_AL_RESTO,
@@ -893,12 +893,12 @@ class CantarContraFlorAlResto(IJugada):
 #     return f"{self.jid} foo"
 
 #   # Retorna true si la jugada es valida
-#   def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-#     pkts :list[Packet] = []
+#   def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+#     pkts :list[Envelope] = []
 #     return pkts, True
 
-#   def hacer(self, p:Partida) -> list[Packet]:
-#     pkts :list[Packet] = []
+#   def hacer(self, p:Partida) -> list[Envelope]:
+#     pkts :list[Envelope] = []
 #     pre, ok = self.ok(p)
 #     pkts += pre
 
@@ -918,22 +918,22 @@ class GritarTruco(IJugada):
     return f"{self.jid} truco"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     # checkeos:
     noSeFueAlMazo = not p.manojo(self.jid).se_fue_al_mazo
-    noSeEstaJugandoElEnvite = p.ronda.envite.estado <= EstadoEnvite.NOCANTADOAUN
+    noSeEstaJugandoElEnvite = p.ronda.envite.estado <= EstadoEnvite.NOGRITADOAUNAUN
 
     yoOUnoDeMisCompasTieneFlorYAunNoCanto = p.ronda.hay_equipos_sin_cantar(p.manojo(self.jid).jugador.equipo)
 
     laFlorEstaPrimero = yoOUnoDeMisCompasTieneFlorYAunNoCanto
-    trucoNoSeJugoAun = p.ronda.truco.estado == EstadoTruco.NOCANTADO
+    trucoNoSeJugoAun = p.ronda.truco.estado == EstadoTruco.NOGRITADOAUN
     esSuTurno = p.ronda.get_el_turno().jugador.id == p.manojo(self.jid).jugador.id
     trucoHabilitado = noSeFueAlMazo and trucoNoSeJugoAun and noSeEstaJugandoElEnvite and (not laFlorEstaPrimero) and esSuTurno
 
     if not trucoHabilitado:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -943,15 +943,15 @@ class GritarTruco(IJugada):
       
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
     if not ok:
       return pkts
     
-    pkts += [Packet(
+    pkts += [Envelope(
       dest=["ALL"],
       m=Message(
         CodMsg.GRITAR_TRUCO,
@@ -972,12 +972,12 @@ class GritarReTruco(IJugada):
     return f"{self.jid} re-truco"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     # checkeos generales:
     noSeFueAlMazo = not p.manojo(self.jid).se_fue_al_mazo
-    noSeEstaJugandoElEnvite = p.ronda.envite.estado <= EstadoEnvite.NOCANTADOAUN
+    noSeEstaJugandoElEnvite = p.ronda.envite.estado <= EstadoEnvite.NOGRITADOAUNAUN
 
     yoOUnoDeMisCompasTieneFlorYAunNoCanto = p.ronda.hay_equipos_sin_cantar(p.manojo(self.jid).jugador.equipo)
 
@@ -1003,7 +1003,7 @@ class GritarReTruco(IJugada):
     reTrucoHabilitado = noSeFueAlMazo and noSeEstaJugandoElEnvite and (casoI or casoII) and (not laFlorEstaPrimero)
 
     if not reTrucoHabilitado:
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.ERROR,
@@ -1013,15 +1013,15 @@ class GritarReTruco(IJugada):
 
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
     if not ok:
       return pkts
     
-    pkts += [Packet(
+    pkts += [Envelope(
       dest=["ALL"],
       m=Message(
         CodMsg.GRITAR_RETRUCO,
@@ -1041,13 +1041,13 @@ class GritarVale4(IJugada):
     return f"{self.jid} vale-4"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     # checkeos:
     noSeFueAlMazo = not p.manojo(self.jid).se_fue_al_mazo
 
-    noSeEstaJugandoElEnvite = p.ronda.envite.estado <= EstadoEnvite.NOCANTADOAUN
+    noSeEstaJugandoElEnvite = p.ronda.envite.estado <= EstadoEnvite.NOGRITADOAUNAUN
 
     yoOUnoDeMisCompasTieneFlorYAunNoCanto = p.ronda.hay_equipos_sin_cantar(p.manojo(self.jid).jugador.equipo)
 
@@ -1074,7 +1074,7 @@ class GritarVale4(IJugada):
     vale4Habilitado = noSeFueAlMazo and (casoI or casoII) and noSeEstaJugandoElEnvite and not laFlorEstaPrimero
 
     if not vale4Habilitado:
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.ERROR,
@@ -1084,15 +1084,15 @@ class GritarVale4(IJugada):
 
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
     if not ok:
       return pkts
     
-    pkts += [Packet(
+    pkts += [Envelope(
       dest=["ALL"],
       m=Message(
         CodMsg.GRITAR_VALE4,
@@ -1113,12 +1113,12 @@ class ResponderQuiero(IJugada):
     return f"{self.jid} quiero"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     seFueAlMazo = p.manojo(self.jid).se_fue_al_mazo
     if seFueAlMazo:
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.ERROR,
@@ -1138,7 +1138,7 @@ class ResponderQuiero(IJugada):
 
     florEnJuego = p.ronda.envite.estado == EstadoEnvite.FLOR
     if florEnJuego:
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.ERROR,
@@ -1149,7 +1149,7 @@ class ResponderQuiero(IJugada):
     noHanCantadoLaFlorAun = p.ronda.envite.estado < EstadoEnvite.FLOR
     yoOUnoDeMisCompasTieneFlorYAunNoCanto = p.ronda.hay_equipos_sin_cantar(p.manojo(self.jid).jugador.equipo)
     if noHanCantadoLaFlorAun and yoOUnoDeMisCompasTieneFlorYAunNoCanto:
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.ERROR,
@@ -1169,7 +1169,7 @@ class ResponderQuiero(IJugada):
     ok = elEnvidoEsRespondible or laContraFlorEsRespondible or elTrucoEsRespondible
     if not ok:
       # si no, esta respondiendo al pedo
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.ERROR,
@@ -1182,7 +1182,7 @@ class ResponderQuiero(IJugada):
     if elEnvidoEsRespondible:
       esDelEquipoContrario = p.manojo(self.jid).jugador.equipo != p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo
       if not esDelEquipoContrario:
-        pkts += [Packet(
+        pkts += [Envelope(
           dest=[p.manojo(self.jid).jugador.id],
           m=Message(
             CodMsg.ERROR,
@@ -1195,7 +1195,7 @@ class ResponderQuiero(IJugada):
       esDelEquipoContrario = p.manojo(self.jid).jugador.equipo != p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo
       ok = tieneFlor and esDelEquipoContrario
       if not ok:
-        pkts += [Packet(
+        pkts += [Envelope(
           dest=[p.manojo(self.jid).jugador.id],
           m=Message(
             CodMsg.ERROR,
@@ -1205,8 +1205,8 @@ class ResponderQuiero(IJugada):
     
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
@@ -1224,7 +1224,7 @@ class ResponderQuiero(IJugada):
     elTrucoEsRespondible = p.ronda.truco.estado.es_truco_respondible() and p.ronda.manojo(p.ronda.truco.cantado_por).jugador.equipo != p.manojo(self.jid).jugador.equipo
 
     if elEnvidoEsRespondible:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.QUIERO_ENVITE,
@@ -1243,7 +1243,7 @@ class ResponderQuiero(IJugada):
 
     elif laContraFlorEsRespondible:
       
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.QUIERO_ENVITE,
@@ -1262,14 +1262,14 @@ class ResponderQuiero(IJugada):
       if p.ronda.envite.estado == EstadoEnvite.CONTRAFLOR:
         puntosASumar = p.ronda.envite.puntaje
         p.suma_puntos(equipoGanador, puntosASumar)
-        pkts += [Packet(
+        pkts += [Envelope(
           dest=["ALL"],
           m=Message(
             CodMsg.SUMA_PTS,
             data={
               "autor": manojoConLaFlorMasAlta.jugador.id,
               "razon": Razon.CONTRAFLOR_GANADA,
-              "valor": puntosASumar,
+              "puntos": puntosASumar,
             })
         )] if p.verbose else []
 
@@ -1280,14 +1280,14 @@ class ResponderQuiero(IJugada):
         # puntosASumar = p.Ronda.Envite.Puntaje + p.CalcPtsContraFlorAlResto(equipoGanador)
         puntosASumar = p.calc_pts_contraflor_al_resto(equipoGanador)
         p.suma_puntos(equipoGanador, puntosASumar)
-        pkts += [Packet(
+        pkts += [Envelope(
           dest=["ALL"],
           m=Message(
             CodMsg.SUMA_PTS,
             data={
               "autor": manojoConLaFlorMasAlta.jugador.id,
               "razon": Razon.CONTRAFLOR_AL_RESTO_GANADA,
-              "valor": puntosASumar,
+              "puntos": puntosASumar,
             })
         )] if p.verbose else []
 
@@ -1295,7 +1295,7 @@ class ResponderQuiero(IJugada):
       p.ronda.envite.sin_cantar = []
 
     elif elTrucoEsRespondible:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.QUIERO_TRUCO,
@@ -1316,12 +1316,12 @@ class ResponderNoQuiero(IJugada):
     return f"{self.jid} no-quiero"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     seFueAlMazo = p.manojo(self.jid).se_fue_al_mazo
     if seFueAlMazo:
-      pkts += [Packet(
+      pkts += [Envelope(
           dest=[p.manojo(self.jid).jugador.id],
           m=Message(
             CodMsg.ERROR,
@@ -1353,7 +1353,7 @@ class ResponderNoQuiero(IJugada):
 
     if not ok:
       # si no, esta respondiendo al pedo
-      pkts += [Packet(
+      pkts += [Envelope(
           dest=[p.manojo(self.jid).jugador.id],
           m=Message(
             CodMsg.ERROR,
@@ -1364,7 +1364,7 @@ class ResponderNoQuiero(IJugada):
     if elEnvidoEsRespondible:
       esDelEquipoContrario = p.manojo(self.jid).jugador.equipo != p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo
       if not esDelEquipoContrario:
-        pkts += [Packet(
+        pkts += [Envelope(
             dest=[p.manojo(self.jid).jugador.id],
             m=Message(
               CodMsg.ERROR,
@@ -1377,7 +1377,7 @@ class ResponderNoQuiero(IJugada):
       esDelEquipoContrario = p.manojo(self.jid).jugador.equipo != p.ronda.manojo(p.ronda.envite.cantado_por).jugador.equipo
       ok = tieneFlor and esDelEquipoContrario
       if not ok:
-        pkts += [Packet(
+        pkts += [Envelope(
             dest=[p.manojo(self.jid).jugador.id],
             m=Message(
               CodMsg.ERROR,
@@ -1387,8 +1387,8 @@ class ResponderNoQuiero(IJugada):
 
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
@@ -1401,7 +1401,7 @@ class ResponderNoQuiero(IJugada):
     
     if elEnvidoEsRespondible:
 
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.NO_QUIERO,
@@ -1422,14 +1422,14 @@ class ResponderNoQuiero(IJugada):
       p.ronda.envite.sin_cantar = []
       p.ronda.envite.puntaje = totalPts
 
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.SUMA_PTS,
           data={
           "autor": p.ronda.envite.cantado_por,
           "razon": Razon.ENVITE_NO_QUERIDO,
-          "valor": totalPts,
+          "puntos": totalPts,
         })
       )] if p.verbose else []
 
@@ -1438,7 +1438,7 @@ class ResponderNoQuiero(IJugada):
     elif laFlorEsRespondible:
 
       # todo ok: tiene flor; se pasa a jugar:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.CON_FLOR_ME_ACHICO,
@@ -1469,14 +1469,14 @@ class ResponderNoQuiero(IJugada):
       p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
       p.ronda.envite.sin_cantar = []
 
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.SUMA_PTS,
           data={
           "autor": p.ronda.envite.cantado_por,
           "razon": Razon.FLOR_ACHICADA,
-          "valor": totalPts,
+          "puntos": totalPts,
         })
       )] if p.verbose else []
 
@@ -1484,7 +1484,7 @@ class ResponderNoQuiero(IJugada):
 
     elif elTrucoEsRespondible:
       
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.NO_QUIERO,
@@ -1519,7 +1519,7 @@ class ResponderNoQuiero(IJugada):
           # al mismo metodo booleano, en ambas oportunidades retorna diferente
           # ridiculo
           pkts += [
-            Packet(
+            Envelope(
               dest=[m.jugador.id],
               m=Message(
                 CodMsg.NUEVA_RONDA,
@@ -1539,14 +1539,14 @@ class IrseAlMazo(IJugada):
     return f"{self.jid} mazo"
 
   # Retorna true si la jugada es valida
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-    pkts :list[Packet] = []
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+    pkts :list[Envelope] = []
 
     # checkeos:
     yaSeFueAlMazo = p.manojo(self.jid).se_fue_al_mazo
     yaTiroTodasSusCartas = p.manojo(self.jid).get_cant_cartas_tiradas() == 3
     if yaSeFueAlMazo or yaTiroTodasSusCartas:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -1567,7 +1567,7 @@ class IrseAlMazo(IJugada):
     # la de la flor es igual al del envido; porque es un envite
     noSePuedeIrPorElTruco = seEstabaJugandoElTruco and p.ronda.truco.cantado_por == p.manojo(self.jid).jugador.id
     if noSePuedeIrPorElEnvite or noSePuedeIrPorElTruco:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -1590,7 +1590,7 @@ class IrseAlMazo(IJugada):
     # que pasa si alguien dice truco y se va al mazo?
 
     if noSePuedeIr:
-      pkts += [Packet(
+      pkts += [Envelope(
         dest=[p.manojo(self.jid).jugador.id],
         m=Message(
           CodMsg.ERROR,
@@ -1600,15 +1600,15 @@ class IrseAlMazo(IJugada):
       
     return pkts, True
 
-  def hacer(self, p:Partida) -> list[Packet]:
-    pkts :list[Packet] = []
+  def hacer(self, p:Partida) -> list[Envelope]:
+    pkts :list[Envelope] = []
     pre, ok = self.ok(p)
     pkts += pre
 
     if not ok:
       return pkts
     
-    pkts += [Packet(
+    pkts += [Envelope(
         dest=["ALL"],
         m=Message(
           CodMsg.MAZO,
@@ -1669,14 +1669,14 @@ class IrseAlMazo(IJugada):
         p.ronda.envite.sin_cantar = []
         e.puntaje = totalPts
 
-        pkts += [Packet(
+        pkts += [Envelope(
           dest=["ALL"],
           m=Message(
             CodMsg.SUMA_PTS,
             data={
             "autor": e.cantado_por,
             "razon": Razon.ENVITE_NO_QUERIDO,
-            "valor": totalPts,
+            "puntos": totalPts,
           })
         )] if p.verbose else []
 
@@ -1709,14 +1709,14 @@ class IrseAlMazo(IJugada):
         p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
         p.ronda.envite.sin_cantar = []
 
-        pkts += [Packet(
+        pkts += [Envelope(
           dest=["ALL"],
           m=Message(
             CodMsg.SUMA_PTS,
             data={
             "autor": p.ronda.envite.cantado_por,
             "razon": Razon.FLOR_ACHICADA,
-            "valor": totalPts,
+            "puntos": totalPts,
           })
         )] if p.verbose else []
 
@@ -1743,7 +1743,7 @@ class IrseAlMazo(IJugada):
         p.ronda.manoEnJuego += 1
         p.ronda.set_next_turno_pos_mano()
         # lo envio
-        pkts += [Packet(
+        pkts += [Envelope(
           dest=["ALL"],
           m=Message(
             CodMsg.SIG_TURNO_POSMANO,
@@ -1767,7 +1767,7 @@ class IrseAlMazo(IJugada):
           # ridiculo
 
           pkts += [
-            Packet(
+            Envelope(
               dest=[m.jugador.id],
               m=Message(
                 CodMsg.NUEVA_RONDA,
@@ -1779,7 +1779,7 @@ class IrseAlMazo(IJugada):
       eraSuTurno = p.ronda.get_el_turno().jugador.id == p.manojo(self.jid).jugador.id
       if eraSuTurno:
         p.ronda.set_next_turno()
-        pkts += [Packet(
+        pkts += [Envelope(
           dest=["ALL"],
           m=Message(
             CodMsg.SIG_TURNO,
@@ -1799,12 +1799,12 @@ class IrseAlMazo(IJugada):
 #     return f"{self.jid} foo"
 
 #   # Retorna true si la jugada es valida
-#   def ok(self,p:Partida) -> tuple[list[Packet], bool]:
-#     pkts :list[Packet] = []
+#   def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
+#     pkts :list[Envelope] = []
 #     return pkts, True
 
-#   def hacer(self, p:Partida) -> list[Packet]:
-#     pkts :list[Packet] = []
+#   def hacer(self, p:Partida) -> list[Envelope]:
+#     pkts :list[Envelope] = []
 #     pre, ok = self.ok(p)
 #     pkts += pre
 

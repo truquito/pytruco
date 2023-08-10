@@ -13,7 +13,7 @@ from .mano import NumMano, Resultado, CartaTirada
 from .carta import Carta
 from .jugadas import IJUGADA_ID
 
-from enco.packet import Packet
+from enco.envelope import Envelope
 from enco.message import Message
 from enco.codmsg import CodMsg
 from enco.razon import Razon
@@ -23,9 +23,9 @@ class IJugada():
   def id() -> IJUGADA_ID:
     pass
   """retorna `True` si la jugada es valida"""
-  def ok(self,p:Partida) -> tuple[list[Packet], bool]:
+  def ok(self,p:Partida) -> tuple[list[Envelope], bool]:
     pass
-  def hacer(self, p:Partida) -> list[Packet]:
+  def hacer(self, p:Partida) -> list[Envelope]:
     pass
   def __str__(self) -> str:
     pass
@@ -148,7 +148,7 @@ class Partida():
     # 2 opciones:
     # o bien el envido no se jugo aun,
     # o bien ya estabamos en envido
-    if self.ronda.envite.estado == EstadoEnvite.NOCANTADOAUN: # no se habia jugado aun
+    if self.ronda.envite.estado == EstadoEnvite.NOGRITADOAUNAUN: # no se habia jugado aun
       self.ronda.envite.puntaje = 3
     else: # ya se habia cantado ENVIDO x cantidad de veces
       self.ronda.envite.puntaje += 3
@@ -224,14 +224,14 @@ class Partida():
     tirada = CartaTirada(manojo.jugador.id, carta)
     self.ronda.get_mano_actual().agregar_tirada(tirada)
 
-  def abandono(self,jugador:str) -> list[Packet]:
+  def abandono(self,jugador:str) -> list[Envelope]:
     # encuentra al jugador
     manojo = self.manojo(jugador)
     # doy por ganador al equipo contrario
     equipoContrario = manojo.jugador.GetEquipoContrario()
     ptsFaltantes = self.puntuacion - self.puntajes[equipoContrario]
     self.suma_puntos(equipoContrario, ptsFaltantes)
-    return [Packet(
+    return [Envelope(
       ["ALL"],
       Message(
         CodMsg.ABANDONO,
@@ -243,7 +243,7 @@ class Partida():
   se acabo la ronda?
   si se empieza una ronda nueva -> retorna true
   si no se termino la ronda 	 -> retorna false"""
-  def evaluar_ronda(self) -> tuple[bool, list[Packet]]:
+  def evaluar_ronda(self) -> tuple[bool, list[Envelope]]:
     """
 		TENER EN CUENTA:
 		===============
@@ -253,7 +253,7 @@ class Partida():
 			noSeSabe sii (no esta empardada) & (ganador == nil)
 		por default dice "ganoRojo"
     """
-    pkts:list[Packet] = []
+    pkts:list[Envelope] = []
 
     # A MENOS QUE SE HAYAN IDO TODOS EN LA PRIMERA MANO!!!
     hayJugadoresRojo = self.ronda.cant_jugadores_en_juego[Equipo.ROJO] > 0
@@ -384,7 +384,7 @@ class Partida():
     # momento de sumar los puntos del truco
     totalPts :int = 0
 
-    if self.ronda.truco.estado in [EstadoTruco.NOCANTADO, EstadoTruco.TRUCO]:
+    if self.ronda.truco.estado in [EstadoTruco.NOGRITADOAUN, EstadoTruco.TRUCO]:
       totalPts = 1
     elif self.ronda.truco.estado in [EstadoTruco.TRUCOQUERIDO, EstadoTruco.RETRUCO]:
       totalPts = 2
@@ -398,7 +398,7 @@ class Partida():
 
       # `La ronda ha sido ganada por el equipo %s. +%v puntos para el equipo %s 
       # por el %s ganado`
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.RONDA_GANADA,
@@ -421,7 +421,7 @@ class Partida():
 
       # `La ronda ha sido ganada por el equipo %s. +%v puntos para el equipo %s 
       # por el %s no querido`
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.RONDA_GANADA,
@@ -443,7 +443,7 @@ class Partida():
 
       # `La ronda ha sido ganada por el equipo %s. +%v puntos para el equipo %s 
       # por el %s ganado`
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.RONDA_GANADA,
@@ -455,21 +455,21 @@ class Partida():
 
     self.suma_puntos(self.ronda.manojo(ganador).jugador.equipo, totalPts)
 
-    pkts += [Packet(
+    pkts += [Envelope(
       ["ALL"],
       Message(
         CodMsg.SUMA_PTS,
         data={
           "autor": ganador,
           "razon": Razon.TRUCO_QUERIDO,
-          "valor": totalPts
+          "puntos": totalPts
         })
     )] if self.verbose else []
 
     return True, pkts # porque se empezo una nueva ronda
 
-  def evaluar_mano(self) -> tuple[bool, list[Packet]]:
-    pkts:list[Packet] = []
+  def evaluar_mano(self) -> tuple[bool, list[Envelope]]:
+    pkts:list[Envelope] = []
     
     # cual es la tirada-carta que gano la mano?
     # ojo que puede salir parda
@@ -531,7 +531,7 @@ class Partida():
       mano.resultado = Resultado.EMPARDADA
       mano.ganador = ""
       
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.LA_MANO_RESULTA_PARDA,
@@ -572,7 +572,7 @@ class Partida():
       # pero se setea despues de evaluar la ronda
       mano.ganador = self.ronda.manojo(tiradaGanadora.jugador).jugador.id
 
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.MANO_GANADA,
@@ -600,7 +600,7 @@ class Partida():
 
   """
   
-  perspectivas para los mensajes/Packets
+  perspectivas para los mensajes/Envelopes
   
   """
 
@@ -627,15 +627,15 @@ class Partida():
   
   """
 
-  def byeBye(self) -> list[Packet]:
-    pkts:list[Packet] = []
+  def byeBye(self) -> list[Envelope]:
+    pkts:list[Envelope] = []
     if self.terminada():
 
       s :str = self.ronda.manojos[0].jugador.id \
         if self.ronda.manojos[0].jugador.equipo == self.el_que_va_ganando() \
         else self.ronda.manojos[1].jugador.id  
 
-      pkts += [Packet(
+      pkts += [Envelope(
         ["ALL"],
         Message(
           CodMsg.BYEBYE,
@@ -690,8 +690,8 @@ class Partida():
     raise Exception("comando invalido")
 
   """nexo capa presentacion con capa logica"""
-  def cmd(self, cmd:str) -> list[Packet]:
-    pkts:list[Packet] = []
+  def cmd(self, cmd:str) -> list[Envelope]:
+    pkts:list[Envelope] = []
 
     # checkeo semantico
     jugada = self.parse_jugada(cmd)
@@ -822,7 +822,7 @@ class Partida():
     return p
 
 """ Abandono da por ganada la partida al equipo contario """
-def abandono(jugador:str, p:Partida) -> list[Packet]:   
+def abandono(jugador:str, p:Partida) -> list[Envelope]:   
   return p.abandono(jugador)
 
 

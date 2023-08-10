@@ -5,6 +5,7 @@ from enum import Enum
 from .carta import Carta
 
 class Resultado(Enum):
+  INDETERMINADO = "indeterminado"
   GANO_ROJO = "ganoRojo"
   GANO_AZUL = "ganoAzul"
   EMPARDADA = "empardada"
@@ -20,10 +21,12 @@ class Resultado(Enum):
   
   def parse(r:str) -> Resultado:
     if r not in map(lambda x: str(x), 
-      [Resultado.GANO_ROJO,Resultado.GANO_AZUL,Resultado.EMPARDADA]):
+      [Resultado.INDETERMINADO,Resultado.GANO_ROJO,Resultado.GANO_AZUL,
+       Resultado.EMPARDADA]):
       raise Exception("Resultado invalido")
 
-    return Resultado.GANO_ROJO if r == Resultado.GANO_ROJO \
+    return Resultado.INDETERMINADO if r == Resultado.INDETERMINADO \
+      else Resultado.GANO_ROJO if r == Resultado.GANO_ROJO \
       else Resultado.GANO_AZUL if r == Resultado.GANO_AZUL \
       else Resultado.EMPARDADA
   

@@ -4,7 +4,7 @@ from enum import Enum
 
 class EstadoTruco(Enum):
 
-  NOCANTADO      = "noCantado"
+  NOGRITADOAUN   = "noGritadoAun"
   TRUCO          = "truco"
   TRUCOQUERIDO   = "trucoQuerido"
   RETRUCO        = "reTruco"
@@ -41,12 +41,12 @@ class EstadoTruco(Enum):
   
   def parse(et:str) -> EstadoTruco:
     if et not in map(lambda x: str(x), [ 
-        EstadoTruco.NOCANTADO, EstadoTruco.TRUCO, EstadoTruco.TRUCOQUERIDO, 
+        EstadoTruco.NOGRITADOAUN, EstadoTruco.TRUCO, EstadoTruco.TRUCOQUERIDO, 
         EstadoTruco.RETRUCO, EstadoTruco.RETRUCOQUERIDO, EstadoTruco.VALE4, 
         EstadoTruco.VALE4QUERIDO ]):
       raise Exception("Estado Truco invalido")
     
-    return EstadoTruco.NOCANTADO if et == EstadoTruco.NOCANTADO \
+    return EstadoTruco.NOGRITADOAUN if et == EstadoTruco.NOGRITADOAUN \
       else EstadoTruco.TRUCO if et == EstadoTruco.TRUCO \
       else EstadoTruco.TRUCOQUERIDO if et == EstadoTruco.TRUCOQUERIDO \
       else EstadoTruco.RETRUCO if et == EstadoTruco.RETRUCO \
@@ -57,7 +57,7 @@ class EstadoTruco(Enum):
 class Truco():
   def __init__(self):
     self.cantado_por :str         = ""
-    self.estado      :EstadoTruco = EstadoTruco.NOCANTADO
+    self.estado      :EstadoTruco = EstadoTruco.NOGRITADOAUN
   
   def to_dict(self) -> Dict[str, any]:
     return {
