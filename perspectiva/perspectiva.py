@@ -21,58 +21,58 @@ class Perspectiva():
     return chi(self.p, self.p.manojo(self.nick), allow_mazo)
 
   def aplicar(self, msg :Message):
-    # if msg.cod == str(CodMsg.ABANDONO):
+    # if str(msg.cod) == str(CodMsg.ABANDONO):
     #   pass
-    # if msg.cod == str(CodMsg.TIMEOUT):
+    # if str(msg.cod) == str(CodMsg.TIMEOUT):
     #   pass
-    # if msg.cod == str(CodMsg.BYEBYE):
+    # if str(msg.cod) == str(CodMsg.BYEBYE):
     #   pass
-    if msg.cod == str(CodMsg.DICE_SON_BUENAS):
+    if str(msg.cod) == str(CodMsg.DICE_SON_BUENAS):
       # sé qué equipo ganó el envite
       self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
       self.p.ronda.envite.sin_cantar = []
-    if msg.cod == str(CodMsg.CANTAR_FLOR):
+    if str(msg.cod) == str(CodMsg.CANTAR_FLOR):
       self.p.ronda.envite.estado = EstadoEnvite.FLOR
       self.p.ronda.envite.cantado_por = msg.cont
       if msg.cont in self.p.ronda.envite.sin_cantar:
         self.p.ronda.envite.sin_cantar.remove(msg.cont)
-    if msg.cod == str(CodMsg.CANTAR_CONTRAFLOR):
+    if str(msg.cod) == str(CodMsg.CANTAR_CONTRAFLOR):
       self.p.ronda.envite.estado = EstadoEnvite.CONTRAFLOR
       self.p.ronda.envite.cantado_por = msg.cont
       if msg.cont in self.p.ronda.envite.sin_cantar:
         self.p.ronda.envite.sin_cantar.remove(msg.cont)
-    if msg.cod == str(CodMsg.CANTAR_CONTRAFLOR_AL_RESTO):
+    if str(msg.cod) == str(CodMsg.CANTAR_CONTRAFLOR_AL_RESTO):
       self.p.ronda.envite.estado = EstadoEnvite.CONTRAFLORALRESTO
       self.p.ronda.envite.cantado_por = msg.cont
       if msg.cont in self.p.ronda.envite.sin_cantar:
         self.p.ronda.envite.sin_cantar.remove(msg.cont)
-    if msg.cod == str(CodMsg.TOCAR_ENVIDO):
+    if str(msg.cod) == str(CodMsg.TOCAR_ENVIDO):
       self.p.ronda.envite.estado = EstadoEnvite.ENVIDO
       self.p.ronda.envite.cantado_por = msg.cont
       self.p.ronda.envite.puntaje += 2
       if msg.cont in self.p.ronda.envite.sin_cantar:
         self.p.ronda.envite.sin_cantar.remove(msg.cont)
-    if msg.cod == str(CodMsg.TOCAR_REALENVIDO):
+    if str(msg.cod) == str(CodMsg.TOCAR_REALENVIDO):
       self.p.ronda.envite.estado = EstadoEnvite.REALENVIDO
       self.p.ronda.envite.cantado_por = msg.cont
       self.p.ronda.envite.puntaje += 3
       if msg.cont in self.p.ronda.envite.sin_cantar:
         self.p.ronda.envite.sin_cantar.remove(msg.cont)
-    if msg.cod == str(CodMsg.TOCAR_FALTAENVIDO):
+    if str(msg.cod) == str(CodMsg.TOCAR_FALTAENVIDO):
       self.p.ronda.envite.estado = EstadoEnvite.FALTAENVIDO
       self.p.ronda.envite.cantado_por = msg.cont
       if msg.cont in self.p.ronda.envite.sin_cantar:
         self.p.ronda.envite.sin_cantar.remove(msg.cont)
-    if msg.cod == str(CodMsg.GRITAR_TRUCO):
+    if str(msg.cod) == str(CodMsg.GRITAR_TRUCO):
       self.p.ronda.truco.estado = EstadoTruco.TRUCO
       self.p.ronda.truco.cantado_por = msg.cont
-    if msg.cod == str(CodMsg.GRITAR_RETRUCO):
+    if str(msg.cod) == str(CodMsg.GRITAR_RETRUCO):
       self.p.ronda.truco.estado = EstadoTruco.RETRUCO
       self.p.ronda.truco.cantado_por = msg.cont
-    if msg.cod == str(CodMsg.GRITAR_VALE4):
+    if str(msg.cod) == str(CodMsg.GRITAR_VALE4):
       self.p.ronda.truco.estado = EstadoTruco.VALE4
       self.p.ronda.truco.cantado_por = msg.cont
-    if msg.cod == str(CodMsg.NO_QUIERO):
+    if str(msg.cod) == str(CodMsg.NO_QUIERO):
       if self.p.ronda.envite.estado != EstadoEnvite.DESHABILITADO:
         self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
         self.p.ronda.envite.sin_cantar = []
@@ -82,10 +82,10 @@ class Perspectiva():
         # enotnces antes de tomar una accion deberia esperar un tiempo asi le doy
         # tiempo a que lleguen los otros mensajes 
         pass
-    if msg.cod == str(CodMsg.CON_FLOR_ME_ACHICO):
+    if str(msg.cod) == str(CodMsg.CON_FLOR_ME_ACHICO):
       self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
       self.p.ronda.envite.sin_cantar = []
-    if msg.cod == str(CodMsg.QUIERO_TRUCO):
+    if str(msg.cod) == str(CodMsg.QUIERO_TRUCO):
       if self.p.ronda.truco.estado == EstadoTruco.TRUCO:
         self.p.ronda.truco.estado = EstadoTruco.TRUCOQUERIDO
       elif self.p.ronda.truco.estado == EstadoTruco.RETRUCO:
@@ -93,31 +93,31 @@ class Perspectiva():
       elif self.p.ronda.truco.estado == EstadoTruco.VALE4:
         self.p.ronda.truco.estado = EstadoTruco.VALE4QUERIDO
       self.p.ronda.truco.cantado_por = msg.cont # <--- que tipo de cont
-    if msg.cod == str(CodMsg.QUIERO_ENVITE):
+    if str(msg.cod) == str(CodMsg.QUIERO_ENVITE):
       # self.p.ronda.envite.estado = # el estado queda igual ?
       # se pasaria a evaluar
       self.p.ronda.envite.cantado_por = msg.cont
       self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
       self.p.ronda.envite.sin_cantar = []
-    if msg.cod == str(CodMsg.SIG_TURNO):
+    if str(msg.cod) == str(CodMsg.SIG_TURNO):
       self.p.ronda.turno = msg.cont
-    if msg.cod == str(CodMsg.SIG_TURNO_POSMANO):
+    if str(msg.cod) == str(CodMsg.SIG_TURNO_POSMANO):
       self.p.ronda.mano_en_juego = NumMano.inc(self.p.ronda.mano_en_juego)
       self.p.ronda.turno = msg.cont
-    # if msg.cod == str(CodMsg.DICE_TENGO):
+    # if str(msg.cod) == str(CodMsg.DICE_TENGO):
     #   pass
-    if msg.cod == str(CodMsg.DICE_SON_MEJORES):
+    if str(msg.cod) == str(CodMsg.DICE_SON_MEJORES):
       # doy por ganado el envite
       self.p.ronda.envite.estado = EstadoEnvite.DESHABILITADO
       self.p.ronda.envite.cantado_por = msg.cont["autor"]
       self.p.ronda.envite.sin_cantar = []
-    if msg.cod == str(CodMsg.NUEVA_PARTIDA):
+    if str(msg.cod) == str(CodMsg.NUEVA_PARTIDA):
       data = json.dumps(msg.cont) # me viene un dict
       self.p = Partida.parse(data)
-    if msg.cod == str(CodMsg.NUEVA_RONDA):
+    if str(msg.cod) == str(CodMsg.NUEVA_RONDA):
       data = json.dumps(msg.cont) # me viene un dict
       self.p = Partida.parse(data)
-    if msg.cod == str(CodMsg.TIRAR_CARTA):
+    if str(msg.cod) == str(CodMsg.TIRAR_CARTA):
       jid, palo, valor = msg.cont["autor"], msg.cont["palo"], msg.cont["valor"]
       m = self.p.ronda.manojo(jid)
       c = Carta(valor, palo)
@@ -140,7 +140,7 @@ class Perspectiva():
             break
       # tambien la agrego a la mano/tiradas
       self.p.ronda.get_mano_actual().agregar_tirada(CartaTirada(jid, c))
-    if msg.cod == str(CodMsg.SUMA_PTS):
+    if str(msg.cod) == str(CodMsg.SUMA_PTS):
       jid, pts = msg.cont["autor"], msg.cont["puntos"]
       self.p.puntajes[self.p.ronda.manojo(jid).jugador.equipo] += pts
       # ahora la razon pude contener info importante:
@@ -157,16 +157,16 @@ class Perspectiva():
                               Razon.SE_FUERON_AL_MAZO]:
         # no hago nada
         pass
-    if msg.cod == str(CodMsg.MAZO):
+    if str(msg.cod) == str(CodMsg.MAZO):
       self.p.ronda.manojo(msg.cont).se_fue_al_mazo = True
-    if msg.cod == str(CodMsg.EL_ENVIDO_ESTA_PRIMERO):
+    if str(msg.cod) == str(CodMsg.EL_ENVIDO_ESTA_PRIMERO):
       self.p.ronda.envite.estado = EstadoEnvite.ENVIDO
       self.p.ronda.envite.cantado_por = msg.cont
       self.p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
-    if msg.cod == str(CodMsg.LA_MANO_RESULTA_PARDA):
+    if str(msg.cod) == str(CodMsg.LA_MANO_RESULTA_PARDA):
       self.p.ronda.get_mano_actual().resultado = Resultado.EMPARDADA
-    if msg.cod == str(CodMsg.MANO_GANADA):
+    if str(msg.cod) == str(CodMsg.MANO_GANADA):
       self.p.ronda.get_mano_actual().ganador = msg.cont["autor"]
-    if msg.cod == str(CodMsg.RONDA_GANADA):
+    if str(msg.cod) == str(CodMsg.RONDA_GANADA):
       # ???? que voy a hacer
       pass

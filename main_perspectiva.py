@@ -24,6 +24,8 @@ from perspectiva.perspectiva import Perspectiva
 # partial annon #2
 # data_annon = '{"puntuacion":20,"puntajes":{"Azul":0,"Rojo":3},"ronda":{"manoEnJuego":0,"cantJugadoresEnJuego":{"Azul":1,"Rojo":1},"elMano":0,"turno":0,"envite":{"estado":"noCantadoAun","puntaje":0,"cantadoPor":"","sinCantar":["annon#1025"]},"truco":{"cantadoPor":"","estado":"noGritadoAun"},"manojos":[{"seFueAlMazo":false,"cartas":[null,null,null],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"juampi","equipo":"Azul"}},{"seFueAlMazo":false,"cartas":[{"palo":"Basto","valor":10},{"palo":"Basto","valor":5},{"palo":"Oro","valor":12}],"tiradas":[false,false,false],"ultimaTirada":0,"jugador":{"id":"annon#1025","equipo":"Rojo"}}],"mixs":{"annon#1025":1,"juampi":0},"muestra":{"palo":"Basto","valor":12},"manos":[{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null},{"resultado":"ganoRojo","ganador":"","cartasTiradas":null}]}}'
 
+# data_orig = '{"puntuacion": 20, "puntajes": {"Azul": 0, "Rojo": 0}, "ronda": {"manoEnJuego": 0, "cantJugadoresEnJuego": {"Rojo": 1, "Azul": 1}, "elMano": 0, "turno": 0, "envite": {"estado": "noCantadoAun", "puntaje": 0, "cantadoPor": "", "sinCantar": []}, "truco": {"cantadoPor": "", "estado": "noGritadoAun"}, "manojos": [{"seFueAlMazo": false, "cartas": [{"palo": "Oro", "valor": 12}, {"palo": "Espada", "valor": 6}, {"palo": "Espada", "valor": 7}], "tiradas": [false, false, false], "ultimaTirada": -1, "jugador": {"id": "juampi", "equipo": "Azul"}}, {"seFueAlMazo": false, "cartas": [{"palo": "Oro", "valor": 6}, {"palo": "Espada", "valor": 3}, {"palo": "Oro", "valor": 5}], "tiradas": [false, false, false], "ultimaTirada": -1, "jugador": {"id": "annon#1025", "equipo": "Rojo"}}], "mixs": {"juampi": 0, "annon#1025": 1}, "muestra": {"palo": "Copa", "valor": 7}, "manos": [{"resultado": "ganoRojo", "ganador": "", "cartasTiradas": null}, {"resultado": "ganoRojo", "ganador": "", "cartasTiradas": null}, {"resultado": "ganoRojo", "ganador": "", "cartasTiradas": null}]}}'
+
 jug0 = "juampi"
 jug1 = "annon#1025"
 
@@ -79,6 +81,8 @@ for i in range(total+1):
       ok = len(aas[0]) == len(aa0) and len(aas[1]) == len(aa1)
       if not ok:
         print("los chis no coinciden")
+        print(last_snap)
+        print(actions)
         print(p)
         print(f"chis: {aas}")
         print(f"chi jug0: {aa0}")
