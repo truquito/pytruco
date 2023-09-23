@@ -160,9 +160,11 @@ class Perspectiva():
     if str(msg.cod) == str(CodMsg.MAZO):
       self.p.ronda.manojo(msg.cont).se_fue_al_mazo = True
     if str(msg.cod) == str(CodMsg.EL_ENVIDO_ESTA_PRIMERO):
+      # actualizacion 23/9/23: se desactiva este comportamiento debido a inconsistencias
+	    # con el simulador-parcial (a.k.a., la `Perspectiva`)
+      # self.p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
       self.p.ronda.envite.estado = EstadoEnvite.ENVIDO
       self.p.ronda.envite.cantado_por = msg.cont
-      self.p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
     if str(msg.cod) == str(CodMsg.LA_MANO_RESULTA_PARDA):
       self.p.ronda.get_mano_actual().resultado = Resultado.EMPARDADA
     if str(msg.cod) == str(CodMsg.MANO_GANADA):
