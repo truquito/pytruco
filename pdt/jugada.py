@@ -291,9 +291,13 @@ class TocarEnvido(IJugada):
     elEnvidoEstaPrimero = p.ronda.truco.estado == EstadoTruco.TRUCO and (not yaEstabamosEnEnvido) and esPrimeraMano
 
     if elEnvidoEstaPrimero:
+      # actualizacion 23/9/23: se desactiva este comportamiento debido a inconsistencias
+	    # con el simulador-parcial (a.k.a., la `Perspectiva`)
+  
       # deshabilito el truco
-      p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
-      p.ronda.truco.cantado_por = ""
+      # p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
+      # p.ronda.truco.cantado_por = ""
+      
       pkts += [Envelope(
         dest=["ALL"],
         m=Message(
@@ -433,9 +437,12 @@ class TocarRealEnvido(IJugada):
     elEnvidoEstaPrimero = p.ronda.truco.estado == EstadoTruco.TRUCO and (not yaEstabamosEnEnvido) and esPrimeraMano
 
     if elEnvidoEstaPrimero:
+      # actualizacion 23/9/23: se desactiva este comportamiento debido a inconsistencias
+	    # con el simulador-parcial (a.k.a., la `Perspectiva`)
+
       # deshabilito el truco
-      p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
-      p.ronda.truco.cantado_por = ""
+      # p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
+      # p.ronda.truco.cantado_por = ""
 
       pkts += [Envelope(
         dest=["ALL"],
@@ -543,9 +550,13 @@ class TocarFaltaEnvido(IJugada):
     elEnvidoEstaPrimero = p.ronda.truco.estado == EstadoTruco.TRUCO and (not yaEstabamosEnEnvido) and esPrimeraMano
 
     if elEnvidoEstaPrimero:
+      # actualizacion 23/9/23: se desactiva este comportamiento debido a inconsistencias
+	    # con el simulador-parcial (a.k.a., la `Perspectiva`)
+
       # deshabilito el truco
-      p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
-      p.ronda.truco.cantado_por = ""
+      # p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
+      # p.ronda.truco.cantado_por = ""
+      
       pkts += [Envelope(
         dest=["ALL"],
         m=Message(
@@ -673,12 +684,23 @@ class CantarFlor(IJugada):
         data=p.manojo(self.jid).jugador.id)
     )] if p.verbose else []
 
+    # actualizacion 23/9/23: se desactiva este comportamiento debido a inconsistencias
+	  # con el simulador-parcial (a.k.a., la `Perspectiva`)
+    
     # corresponde que desactive el truco?
     # si lo desactivo: es medio tedioso para el usuario tener q volver a gritar
     # si no lo desacivo: medio como que se olvida
     # QUEDA CONSISTENTE CON "EL ENVIDO ESTA PRIMERO"!
-    p.ronda.truco.cantado_por = ""
-    p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
+
+    # p.ronda.truco.cantado_por = ""
+    # p.ronda.truco.estado = EstadoTruco.NOGRITADOAUN
+    
+    pkts += [Envelope(
+        dest=["ALL"],
+        m=Message(
+          CodMsg.EL_ENVIDO_ESTA_PRIMERO,
+          data=p.manojo(self.jid).jugador.id)
+      )] if p.verbose else []
 
     # y me elimino de los que no-cantaron
     p.ronda.envite.canto_flor(p.manojo(self.jid).jugador.id)
