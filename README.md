@@ -2,11 +2,13 @@
 
 `pytruco` is a pure Python Uruguayan Truco engine, simulator, and library.
 
+## Install
+
 ```sh
 pip install pytruco
 ```
 
-### Example:
+### Example
 
 ```py
 from pytruco.pdt.partida import Partida
@@ -27,7 +29,7 @@ print(p.cmd("ariana truco"))
 print(p.cmd("ben quiero"))
 ```
 
-### Random walker example:
+### Random walker example
 
 ```py
 from pytruco.pdt.partida import Partida
