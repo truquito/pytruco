@@ -2,6 +2,7 @@ import argparse
 import json
 import socket
 
+import pytruco
 from pytruco.pdt.partida import Partida
 from pytruco.pdt.chi import chis as get_chis
 
@@ -9,7 +10,7 @@ BUFFER_SIZE = 1024_00
 
 
 def print_pytruco_version():
-  print("pytruco version: 0.1.0")
+  print(f"pytruco version: {pytruco.__version__}")
 
 
 def split_message(msg: str) -> tuple[str, str]:
