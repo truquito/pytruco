@@ -2,6 +2,10 @@
 
 `pytruco` is a pure Python Uruguayan Truco engine, simulator, and library.
 
+```sh
+pip install pytruco
+```
+
 ### Example:
 
 ```py
