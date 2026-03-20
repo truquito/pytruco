@@ -27,11 +27,18 @@ print(p.cmd("ariana truco"))
 print(p.cmd("ben quiero"))
 ```
 
-### Random walk example:
+### Random walker example:
 
 ```py
 from pytruco.pdt.partida import Partida
-from pytruco.pdt.chi import random_action
+from pytruco.pdt.chi import chis
+import random
+
+def random_action(p:Partida, allow_mazo=True):
+  aas = chis(p, allow_mazo)
+  aas = [aa for aa in aas if len(aa) > 0]
+  aa = random.choice(aas)
+  return random.choice(aa)
 
 p = Partida(
     puntuacion    = 20,
