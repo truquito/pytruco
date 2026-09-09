@@ -18,7 +18,10 @@ def test_envido_quiero():
   ])
   
   assert p.manojo("alice").calcular_envido(muestra) == 33, "deberia tener 33 de envido"
-  assert p.manojo("bob").calcular_envido(muestra) == 5, "deberia tener 5 de envido"
+  # Bob: 1 copa, 2 oro, 3 basto -- sin pieza y con los 3 palos distintos
+  # entre si, vale unicamente la mas alta (Art. 14.B.b), no la suma de
+  # las 2 de mayor valor (esta asercion codificaba el bug historico: 3+2=5).
+  assert p.manojo("bob").calcular_envido(muestra) == 3, "deberia tener 3 de envido"
 
   p.cmd("alice envido")
   p.cmd("bob quiero")

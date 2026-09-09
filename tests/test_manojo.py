@@ -169,5 +169,17 @@ def test_calc_envido():
 
   assert m_anna.calcular_envido(muestra) == 27, "deberia tener 27 de envido"
 
+  # sin pieza y con los 3 palos distintos entre si: vale unicamente la
+  # carta de mayor valor (Art. 14.B.b), NO se suman las 2 de mayor valor
+  # (bug historico, mismo que en gotruco/cctruco)
+  m_anna.cartas = [
+    Carta(6, "copa"),
+    Carta(7, "basto"),
+    Carta(10, "oro"),
+  ]
+
+  assert m_anna.tiene_flor(muestra)[0] == False, "no deberia tener flor"
+  assert m_anna.calcular_envido(muestra) == 7, "deberia tener 7 de envido (solo la mas alta)"
+
   
 

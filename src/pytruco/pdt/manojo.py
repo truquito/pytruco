@@ -118,23 +118,32 @@ class Manojo():
   """CalcularEnvido devuelve el puntaje correspondiente al envido del manojo
   PRE: no tiene flor"""
   def calcular_envido(self, muestra:Carta) -> int:
+    ptjs = [c.calc_puntaje(muestra) for c in self.cartas]
+
     def sum_las_dos_de_mas_valor() -> int:
-      pts = sorted(
-        [c.calc_puntaje(muestra) for c in self.cartas],
-        reverse=True)
-      return sum(pts[:2])
+      return sum(sorted(ptjs, reverse=True)[:2])
 
     tiene_2_del_mismo_palo, ixs = self.tiene_2_del_mismo_palo()
     if tiene_2_del_mismo_palo:
-      x,y = [self.cartas[ix].calc_puntaje(muestra) for ix in ixs]
+      x,y = [ptjs[ix] for ix in ixs]
       no_tiene_niguna_pieza = max(x,y) < 27
       if no_tiene_niguna_pieza:
         return x + y + 20
       else:
         return max(x + y, sum_las_dos_de_mas_valor())
-    else:
-      # si no: simplemente sumo las 2 de mayor valor
+
+    # Sin dos del mismo palo: con una pieza, Art. 14.B.a manda sumar su
+    # valor al de la otra carta de mayor valor (equivale a sumar las 2 de
+    # mas valor, ya que una pieza [>=27] siempre domina a cualquier
+    # no-pieza [<=7]). Sin pieza, Art. 14.B.b manda tomar UNICAMENTE la mas
+    # alta -- antes se sumaban las 2 de mayor valor tambien en este caso,
+    # lo cual era incorrecto (mismo bug que en gotruco/cctruco). Se
+    # detecta la pieza por puntaje (>=27) en vez de llamar es_pieza() de
+    # nuevo, ya que calc_puntaje() ya lo evaluo por carta.
+    tiene_alguna_pieza = any(p >= 27 for p in ptjs)
+    if tiene_alguna_pieza:
       return sum_las_dos_de_mas_valor()
+    return max(ptjs)
 
 
     
