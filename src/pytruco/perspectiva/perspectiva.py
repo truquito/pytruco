@@ -203,7 +203,19 @@ class Perspectiva():
         # no hago nada
         pass
     if str(msg.cod) == str(CodMsg.MAZO):
-      self.p.ronda.manojo(msg.cont).se_fue_al_mazo = True
+      # Mirror the server (IrseAlMazo.hacer), not just the flag: ir_al_mazo
+      # also decrements cant_jugadores_en_juego and drops the player from
+      # sin_cantar, and a folded player's flor no longer counts. At N>2 the
+      # ronda goes on after a fold, so a stale sin_cantar entry blocks the
+      # teammates' quiero/no-quiero ("alguien con flor no ha cantado"), which
+      # can leave a seat with no legal action at all. Same fix as gotruco's
+      # bot/pers and cctruco::Pers.
+      m = self.p.ronda.manojo(msg.cont)
+      self.p.ir_al_mazo(m)
+      self.p.ronda.envite.jugadores_con_flor = [
+        x for x in (self.p.ronda.envite.jugadores_con_flor or [])
+          if x.jugador.id != m.jugador.id
+      ]
     if str(msg.cod) == str(CodMsg.EL_ENVIDO_ESTA_PRIMERO):
       self.p.ronda.envite.estado = EstadoEnvite.ENVIDO
       self.p.ronda.envite.cantado_por = msg.cont
